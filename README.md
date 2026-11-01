@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="art/banner.png" alt="Bolt — your tiny pixel sidekick for macOS" width="100%">
+<img src="art/banner.png" alt="Zolt — your tiny pixel sidekick for macOS" width="100%">
 
 <br>
 
@@ -12,15 +12,15 @@
 
 ### 🤖 A tiny pixel robot that floats on your desktop, listens when you call, talks back in a glorious 80s robot voice, does things on your Mac (with your OK), and takes your meeting notes.
 
-<img src="art/hero.gif" alt="Bolt saying hi, listening, thinking, talking, having an idea, taking meeting notes and napping" width="100%">
+<img src="art/hero.gif" alt="Zolt saying hi, listening, thinking, talking, having an idea, taking meeting notes and napping" width="100%">
 
 </div>
 
 ---
 
-## 👾 Meet Bolt
+## 👾 Meet Zolt
 
-Bolt lives in the corner of your screen. Click it (or press **⌃⌥Space** from anywhere), say something, and it answers in a speech bubble that scrolls along as it talks. Its brain is [Claude Code](https://claude.com/claude-code), so it's actually smart, and it uses **your own** Claude account.
+**Zolt** (Z + volt ⚡) lives in the corner of your screen. Click it (or press **⌃⌥Space** from anywhere), say something, and it answers in a speech bubble that scrolls along as it talks. Its brain is [Claude Code](https://claude.com/claude-code), so it's actually smart, and it uses **your own** Claude account.
 
 <div align="center">
 <table>
@@ -43,10 +43,10 @@ Bolt lives in the corner of your screen. Click it (or press **⌃⌥Space** from
 
 | | |
 |---|---|
-| 🎙️ **Talk to it** | Click Bolt or hit **⌃⌥Space**, speak, and it sends when you stop. Or type instead. |
+| 🎙️ **Talk to it** | Click Zolt or hit **⌃⌥Space**, speak, and it sends when you stop. Or type instead. |
 | 📼 **80s robot voice** | Replies read aloud with classic Mac voices: Zarvox, Trinoids, Fred, Ralph… or switch it off. |
 | 🛠️ **Does things on your Mac** | *"Remind me to call Mom at 6"*, *"set volume to 30%"*, *"open Spotify"*. **Every** action shows an Allow/Deny dialog first (Deny is the default). |
-| 👀 **Looks at your screen** | *"Look at my LinkedIn, what would you improve?"* One screenshot, only when you ask, with Bolt's own windows left out. |
+| 👀 **Looks at your screen** | *"Look at my LinkedIn, what would you improve?"* One screenshot, only when you ask, with Zolt's own windows left out. |
 | 📝 **Meeting notes** | Notices a **Teams, Zoom or Google Meet** call and *asks* before taking notes. You get a live transcript window that grows with the call, then a TL;DR, decisions and action items. |
 | 💡 **Suggested answers** | Optional: when someone on the call asks a question, a suggested answer quietly appears in your notes window. It never speaks into the call. |
 | 🌙 **Has a life** | Pops in with ideas every 45 min, naps when you're away, wobbles when you drag it. |
@@ -59,26 +59,26 @@ Bolt lives in the corner of your screen. Click it (or press **⌃⌥Space** from
 # 1. Apple's compiler (skip if you already have it)
 xcode-select --install
 
-# 2. Claude Code, Bolt's brain. Run `claude` once afterwards to sign in.
+# 2. Claude Code, Zolt's brain. Run `claude` once afterwards to sign in.
 curl -fsSL https://claude.ai/install.sh | bash
 
-# 3. Grab Bolt and build it
-git clone https://github.com/c0ldskin/bolt-buddy.git
-cd bolt-buddy
+# 3. Grab Zolt and build it
+git clone https://github.com/c0ldskin/zolt-bot.git
+cd zolt-bot
 ./build.sh --run
 ```
 
-That's it. No Xcode project and no dependencies: `build.sh` compiles with `swiftc`, draws the app icon from Bolt's own sprite, installs to `~/Applications/Bolt.app` and drops a **Bolt** shortcut on your Desktop.
+That's it. No Xcode project and no dependencies: `build.sh` compiles with `swiftc`, draws the app icon from Zolt's own sprite, installs to `~/Applications/Zolt.app` and drops a **Zolt** shortcut on your Desktop.
 
 The first time you use each feature, macOS asks for permission: **Microphone** and **Speech Recognition** to talk, **Screen & System Audio Recording** for screenshots and meeting audio.
 
 ## 🕹️ Controls
 
-| Do this | And Bolt… |
+| Do this | And Zolt… |
 |---|---|
-| **Click** Bolt or press **⌃⌥Space** | starts listening |
-| **Drag** Bolt | moves (and remembers the spot) |
-| **Right-click** Bolt, or use the 🤖 in the menu bar | opens the menu: type, look at screen, idea, notes, voice, settings |
+| **Click** Zolt or press **⌃⌥Space** | starts listening |
+| **Drag** Zolt | moves (and remembers the spot) |
+| **Right-click** Zolt, or use the 🤖 in the menu bar | opens the menu: type, look at screen, idea, notes, voice, settings |
 | **Click** the speech bubble | closes it (or opens your notes after a meeting) |
 | **Scroll** the bubble | takes over from the auto-scroll |
 
@@ -87,42 +87,42 @@ The first time you use each feature, macOS asks for permission: **Microphone** a
 ```mermaid
 flowchart LR
     You(("🧑 You")) -- "voice / ⌃⌥Space" --> Ears["🎙️ Apple Speech<br/>recognition"]
-    Ears --> Bolt["🤖 Bolt.app<br/>(Swift, AppKit)"]
-    Bolt -- "claude -p" --> Brain["🧠 Claude Code CLI"]
+    Ears --> Zolt["🤖 Zolt.app<br/>(Swift, AppKit)"]
+    Zolt -- "claude -p" --> Brain["🧠 Claude Code CLI"]
     Brain -- "wants to run something" --> Hook{"✋ Allow / Deny<br/>dialog"}
     Hook -- "you said yes" --> Mac["💻 Your Mac"]
-    Brain -- "reply" --> Bolt
-    Bolt --> Voice["📼 80s voice + speech bubble"]
+    Brain -- "reply" --> Zolt
+    Zolt --> Voice["📼 80s voice + speech bubble"]
     Call["📞 Teams / Zoom / Meet audio"] -- "Core Audio tap" --> Notes["📝 SpeechAnalyzer<br/>live transcript"]
-    Notes --> Bolt
+    Notes --> Zolt
 ```
 
 - **Ears:** `SFSpeechRecognizer` for commands (Apple may process these on its servers); macOS 26's on-device `SpeechAnalyzer` for long meeting transcripts. English (US) only for now.
-- **Brain:** the Claude Code CLI in print mode, with a persona prompt and conversation memory in `~/.bolt`.
-- **Hands:** Claude Code's `PreToolUse` hook calls back into Bolt's own binary (`Bolt --confirm`), which shows the Allow/Deny dialog. No permission bypass, ever.
+- **Brain:** the Claude Code CLI in print mode, with a persona prompt and conversation memory in `~/.zolt`.
+- **Hands:** Claude Code's `PreToolUse` hook calls back into Zolt's own binary (`Zolt --confirm`), which shows the Allow/Deny dialog. No permission bypass, ever.
 - **Meeting audio:** a Core Audio *process tap* on just the meeting app, plus your mic. The notes window shows "You" and "Others".
 - **Face:** a 14×13 pixel grid drawn with plain rectangles at 30 fps. All the art on this page is rendered from that same code.
 
 ## 🔒 Safety & privacy
 
-- 🎙️ The mic is on **only** while Bolt is listening (you clicked it) or taking notes (you said yes).
+- 🎙️ The mic is on **only** while Zolt is listening (you clicked it) or taking notes (you said yes).
 - ✋ Every action on your Mac needs an explicit **Allow**, and so does every web search. The dialog always shows the full command, however long it is.
-- 📖 Bolt can read files in your home folder without asking (that's how it answers questions about them), **except** places that hold secrets: `.ssh`, `.aws`, `.gnupg`, Keychains, browser and password-manager data, Mail, Messages, `.env` files and similar. Those are blocked twice: by Claude Code's own deny rules and by Bolt's approval hook.
-- 🧱 Bolt treats text from web pages, files and screenshots as information, not instructions.
-- 📝 Bolt **never** starts meeting notes by itself, and it reminds you to tell people they're being transcribed. Check your workplace's rules before using it at work.
+- 📖 Zolt can read files in your home folder without asking (that's how it answers questions about them), **except** places that hold secrets: `.ssh`, `.aws`, `.gnupg`, Keychains, browser and password-manager data, Mail, Messages, `.env` files and similar. Those are blocked twice: by Claude Code's own deny rules and by Zolt's approval hook.
+- 🧱 Zolt treats text from web pages, files and screenshots as information, not instructions.
+- 📝 Zolt **never** starts meeting notes by itself, and it reminds you to tell people they're being transcribed. Check your workplace's rules before using it at work.
 - 💡 Suggested answers stay in the Live notes window. They're never spoken or posted. That window is a normal window, though, so **share a single window, not your whole screen**.
 - 🌐 **What leaves your Mac:**
   - **Voice commands** go through Apple's speech recognition, which may process them on Apple's servers.
   - **Meeting audio** is transcribed on your Mac and never sent anywhere as audio.
-  - **Text sent to Claude** through your own Claude Code login: what you say or type to Bolt, screenshots you ask about, files Bolt reads to answer you, and meeting transcripts (for summaries and suggested answers).
-- 🗂️ Everything is stored locally: `~/.bolt` (conversation id and a small troubleshooting log that records what Bolt did, never what anyone said) and `~/Bolt Meeting Notes` (Markdown notes).
+  - **Text sent to Claude** through your own Claude Code login: what you say or type to Zolt, screenshots you ask about, files Zolt reads to answer you, and meeting transcripts (for summaries and suggested answers).
+- 🗂️ Everything is stored locally: `~/.zolt` (conversation id and a small troubleshooting log that records what Zolt did, never what anyone said) and `~/Zolt Meeting Notes` (Markdown notes).
 
 ## 🎨 Make it yours
 
-Bolt's whole face is a little grid of letters in [`Sources/main.swift`](Sources/main.swift):
+Zolt's whole face is a little grid of letters in [`Sources/main.swift`](Sources/main.swift):
 
 ```swift
-let boltGrid = [
+let zoltGrid = [
     "..o........o..",
     "..oa......ao..",
     "..oaooooooao..",
@@ -142,7 +142,7 @@ let boltGrid = [
 Change the letters or the `palette` colors, run `./build.sh`, and you've got your own bot. Regenerate the README art from your new design with:
 
 ```bash
-build/Bolt.app/Contents/MacOS/Bolt --render-art art
+build/Zolt.app/Contents/MacOS/Zolt --render-art art
 ```
 
 ## 🩹 Troubleshooting
@@ -150,37 +150,37 @@ build/Bolt.app/Contents/MacOS/Bolt --render-art art
 <details>
 <summary><b>"I can't find my brain!" / "Not logged in"</b></summary>
 
-Install Claude Code (see Quick start), run `claude` once in Terminal and sign in, then restart Bolt.
+Install Claude Code (see Quick start), run `claude` once in Terminal and sign in, then restart Zolt.
 </details>
 
 <details>
-<summary><b>The mic or screen stopped working after I rebuilt Bolt</b></summary>
+<summary><b>The mic or screen stopped working after I rebuilt Zolt</b></summary>
 
 macOS ties permissions to the app's signature, and every local build gets a new one. Reset them and allow again:
 
 ```bash
-tccutil reset Microphone local.minime.bolt; tccutil reset SpeechRecognition local.minime.bolt
+tccutil reset Microphone io.github.c0ldskin.zolt; tccutil reset SpeechRecognition io.github.c0ldskin.zolt
 ```
 
-For screenshots and meeting audio: System Settings → Privacy & Security → **Screen & System Audio Recording** → remove Bolt with **−**, add it back with **+**, then reopen Bolt.
+For screenshots and meeting audio: System Settings → Privacy & Security → **Screen & System Audio Recording** → remove Zolt with **−**, add it back with **+**, then reopen Zolt.
 </details>
 
 <details>
 <summary><b>My meeting isn't detected</b></summary>
 
-Bolt looks for Teams, Zoom or a browser using the mic. `~/.bolt/bolt.log` lists which apps are using the mic. You can always right-click Bolt → **Start taking notes** by hand.
+Zolt looks for Teams, Zoom or a browser using the mic. `~/.zolt/zolt.log` lists which apps are using the mic. You can always right-click Zolt → **Start taking notes** by hand.
 </details>
 
 <details>
 <summary><b>Words show up twice in my notes</b></summary>
 
-Wear headphones. Without them, your mic hears the call too. Bolt drops most echoes, but headphones work best.
+Wear headphones. Without them, your mic hears the call too. Zolt drops most echoes, but headphones work best.
 </details>
 
 <details>
-<summary><b>Start Bolt when I log in</b></summary>
+<summary><b>Start Zolt when I log in</b></summary>
 
-System Settings → General → Login Items → **+** → pick `~/Applications/Bolt.app`.
+System Settings → General → Login Items → **+** → pick `~/Applications/Zolt.app`.
 </details>
 
 ## 🗺️ Roadmap
@@ -191,12 +191,12 @@ System Settings → General → Login Items → **+** → pick `~/Applications/B
 - [x] Meeting notes for Teams, Zoom and Meet, with a live transcript
 - [x] Suggested answers during calls
 - [ ] 🕺 A dance animation
-- [ ] "Hey Bolt" wake word
+- [ ] "Hey Zolt" wake word
 - [ ] Always-allow list for harmless actions
 - [ ] Skins: swap in your own pixel character
 - [ ] Redraw only when something changes, to save battery
 
-Got an idea? [Open an issue](../../issues). Bolt loves ideas. 💡
+Got an idea? [Open an issue](../../issues). Zolt loves ideas. 💡
 
 ## 🤝 Contributing
 
@@ -208,7 +208,7 @@ PRs welcome, especially new animations, skins and moods. See [CONTRIBUTING.md](C
 
 <div align="center">
 <br>
-<img src="art/bolt.png" width="72" alt="Bolt">
+<img src="art/zolt.png" width="72" alt="Zolt">
 <br>
 <sub>Made with tiny pixels and a lot of beep-boop. Not affiliated with Anthropic, Apple or Microsoft.</sub>
 </div>

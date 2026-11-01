@@ -84,7 +84,7 @@ final class StreamTranscriber {
     }
 }
 
-/// `Bolt --transcribe-file <path>`: runs a file through the same live pipeline and prints the text.
+/// `Zolt --transcribe-file <path>`: runs a file through the same live pipeline and prints the text.
 func runTranscribeFile(_ path: String) -> Never {
     let done = DispatchSemaphore(value: 0)
     Task {

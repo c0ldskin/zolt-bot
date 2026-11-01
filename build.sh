@@ -1,33 +1,33 @@
 #!/bin/bash
-# Builds Bolt.app, installs it to ~/Applications with a shortcut on the Desktop.
+# Builds Zolt.app, installs it to ~/Applications with a shortcut on the Desktop.
 # Usage: ./build.sh [--run]
 set -euo pipefail
 cd "$(dirname "$0")"
 
-APP=build/Bolt.app
-INSTALL="$HOME/Applications/Bolt.app"
+APP=build/Zolt.app
+INSTALL="$HOME/Applications/Zolt.app"
 rm -rf "$APP"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 
-swiftc -swift-version 5 -O Sources/*.swift -o "$APP/Contents/MacOS/Bolt" \
+swiftc -swift-version 5 -O Sources/*.swift -o "$APP/Contents/MacOS/Zolt" \
     -framework Cocoa -framework AVFoundation -framework Speech -framework Carbon -framework CoreAudio -framework ScreenCaptureKit
 cp Info.plist "$APP/Contents/Info.plist"
 
-# App icon, drawn from Bolt's own sprite.
-"$APP/Contents/MacOS/Bolt" --render-icon build/Bolt.iconset
-iconutil -c icns build/Bolt.iconset -o "$APP/Contents/Resources/Bolt.icns"
+# App icon, drawn from Zolt's own sprite.
+"$APP/Contents/MacOS/Zolt" --render-icon build/Zolt.iconset
+iconutil -c icns build/Zolt.iconset -o "$APP/Contents/Resources/Zolt.icns"
 codesign --force --sign - "$APP"
 echo "Built $APP"
 
-# Install (restarting Bolt if it was running) and keep the Desktop shortcut pointing at it.
+# Install (restarting Zolt if it was running) and keep the Desktop shortcut pointing at it.
 WAS_RUNNING=0
-if pgrep -x Bolt >/dev/null; then WAS_RUNNING=1; pkill -x Bolt; sleep 1; fi
+if pgrep -x Zolt >/dev/null; then WAS_RUNNING=1; pkill -x Zolt; sleep 1; fi
 mkdir -p "$HOME/Applications"
 rm -rf "$INSTALL"
 ditto "$APP" "$INSTALL"
-ln -sfn "$INSTALL" "$HOME/Desktop/Bolt"
+ln -sfn "$INSTALL" "$HOME/Desktop/Zolt"
 touch "$INSTALL"
-echo "Installed $INSTALL (Desktop shortcut: ~/Desktop/Bolt)"
+echo "Installed $INSTALL (Desktop shortcut: ~/Desktop/Zolt)"
 
 if [[ "${1:-}" == "--run" || $WAS_RUNNING == 1 ]]; then
     open "$INSTALL"

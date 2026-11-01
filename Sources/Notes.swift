@@ -19,7 +19,7 @@ struct AudioProcess {
     }
 }
 
-/// Apps Bolt watches for calls. Google Meet runs in a browser, so any browser using the mic counts.
+/// Apps Zolt watches for calls. Google Meet runs in a browser, so any browser using the mic counts.
 struct MeetingApp: Equatable {
     let name: String
     let prefixes: [String]
@@ -91,12 +91,12 @@ func peak(_ buffer: AVAudioPCMBuffer) -> Float {
 
 /// Captures the sound other apps play, using a Core Audio process tap (needs the
 /// "Screen & System Audio Recording" permission). Taps the given processes, or, when the
-/// list is empty, everything except Bolt itself.
+/// list is empty, everything except Zolt itself.
 final class SystemAudioCapture {
     private var tapID = AudioObjectID(kAudioObjectUnknown)
     private var deviceID = AudioObjectID(kAudioObjectUnknown)
     private var procID: AudioDeviceIOProcID?
-    private let queue = DispatchQueue(label: "bolt.systemaudio")
+    private let queue = DispatchQueue(label: "zolt.systemaudio")
 
     func start(processes: [AudioObjectID], onBuffer: @escaping (AVAudioPCMBuffer) -> Void) throws {
         let desc: CATapDescription
@@ -113,14 +113,14 @@ final class SystemAudioCapture {
 
         guard var asbd = readValue(tapID, kAudioTapPropertyFormat, AudioStreamBasicDescription()),
               let format = AVAudioFormat(streamDescription: &asbd) else {
-            throw NSError(domain: "Bolt", code: 1, userInfo: [NSLocalizedDescriptionKey: "Couldn't read the tap's audio format."])
+            throw NSError(domain: "Zolt", code: 1, userInfo: [NSLocalizedDescriptionKey: "Couldn't read the tap's audio format."])
         }
 
         let outputDevice = readValue(AudioObjectID(kAudioObjectSystemObject),
                                      kAudioHardwarePropertyDefaultSystemOutputDevice, AudioObjectID(0)) ?? 0
         let outputUID = readString(outputDevice, kAudioDevicePropertyDeviceUID) ?? ""
         let aggregate: [String: Any] = [
-            kAudioAggregateDeviceNameKey: "Bolt Notes",
+            kAudioAggregateDeviceNameKey: "Zolt Notes",
             kAudioAggregateDeviceUIDKey: UUID().uuidString,
             kAudioAggregateDeviceMainSubDeviceKey: outputUID,
             kAudioAggregateDeviceIsPrivateKey: true,
@@ -155,7 +155,7 @@ final class SystemAudioCapture {
 
     private func check(_ status: OSStatus, _ what: String) throws {
         guard status == noErr else {
-            throw NSError(domain: "Bolt", code: Int(status), userInfo: [NSLocalizedDescriptionKey: "Couldn't \(what) (\(status))."])
+            throw NSError(domain: "Zolt", code: Int(status), userInfo: [NSLocalizedDescriptionKey: "Couldn't \(what) (\(status))."])
         }
     }
 }
@@ -233,9 +233,9 @@ func looksLikeQuestion(_ text: String) -> Bool {
 // MARK: - Note taker
 
 /// Records your mic ("You") and Teams' sound ("Others"), transcribes both live into a Markdown
-/// file in ~/Bolt Meeting Notes, and adds a Claude summary when you stop.
+/// file in ~/Zolt Meeting Notes, and adds a Claude summary when you stop.
 final class NoteTaker {
-    static let folder = URL(fileURLWithPath: NSHomeDirectory()).appendingPathComponent("Bolt Meeting Notes")
+    static let folder = URL(fileURLWithPath: NSHomeDirectory()).appendingPathComponent("Zolt Meeting Notes")
 
     var onStatus: ((String) -> Void)?
     /// A finalized line (speaker, text, time), for the live notes window.
@@ -307,7 +307,7 @@ final class NoteTaker {
                 }
             } catch {
                 log("system audio capture failed: \(error)")
-                onStatus?("I can only hear your side: \(error.localizedDescription) Allow Bolt in Privacy & Security → Screen & System Audio Recording.")
+                onStatus?("I can only hear your side: \(error.localizedDescription) Allow Zolt in Privacy & Security → Screen & System Audio Recording.")
             }
             silenceTimer = Timer.scheduledTimer(withTimeInterval: 5, repeats: true) { [weak self] _ in self?.checkSilence() }
         }
@@ -330,7 +330,7 @@ final class NoteTaker {
     private func checkSilence() {
         guard active, !warnedSilence, Date().timeIntervalSince(lastSound) > 25 else { return }
         warnedSilence = true
-        onStatus?("I'm not hearing any sound from the call yet. If others are talking, allow Bolt in System Settings → Privacy & Security → Screen & System Audio Recording.")
+        onStatus?("I'm not hearing any sound from the call yet. If others are talking, allow Zolt in System Settings → Privacy & Security → Screen & System Audio Recording.")
     }
 
     // Without headphones the mic also hears the call, so the same words arrive as both "You" and

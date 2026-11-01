@@ -2,8 +2,8 @@ import Cocoa
 import ImageIO
 import UniformTypeIdentifiers
 
-// Renders the README artwork (banner, animated hero, mood tiles) straight from Bolt's own sprite
-// code, so the pictures always match the app. Run: Bolt --render-art <folder>
+// Renders the README artwork (banner, animated hero, mood tiles) straight from Zolt's own sprite
+// code, so the pictures always match the app. Run: Zolt --render-art <folder>
 
 // MARK: Pixel font (5×7)
 
@@ -209,7 +209,7 @@ private func bubble(_ lines: [String], x: CGFloat, y: CGFloat, px: CGFloat, reve
     }
 }
 
-// MARK: Bolt in different moods
+// MARK: Zolt in different moods
 
 private struct Scene {
     let caption: String
@@ -219,7 +219,7 @@ private struct Scene {
 }
 
 private let scenes: [Scene] = [
-    Scene(caption: "HELLO!", lines: ["HI, I'M BOLT!", "CLICK ME & TALK."], color: cyan) { _ in },
+    Scene(caption: "HELLO!", lines: ["HI, I'M ZOLT!", "CLICK ME & TALK."], color: cyan) { _ in },
     Scene(caption: "LISTENING", lines: ["\"REMIND ME TO", "CALL MOM AT 6\""], color: hex("#2BD67B")) { $0.mood = .listening },
     Scene(caption: "THINKING", lines: ["HMM... ONE", "SECOND..."], color: hex("#B69CFF")) { $0.mood = .thinking },
     Scene(caption: "TALKING", lines: ["DONE! I'LL ASK", "BEFORE I ACT."], color: hex("#FFB000")) { $0.mood = .talking },
@@ -244,10 +244,10 @@ private func renderBanner(_ dir: URL) {
             noStars: CGRect(x: 70, y: 80, width: 780, height: 360))
 
     let k: CGFloat = 20
-    drawBolt(at: CGPoint(x: 950 - 7 * k, y: horizon - 13 * k + 6), scale: k, eyes: .bright)
+    drawZolt(at: CGPoint(x: 950 - 7 * k, y: horizon - 13 * k + 6), scale: k, eyes: .bright)
 
     let stripes = ["#FFE45C", "#FFE45C", "#FFC23D", "#FF9A3D", "#FF9A3D", "#FF6E5A", "#FF4F86"]
-    pixelText("BOLT", x: 84, y: 96, px: 26, shadow: pink) { hex(stripes[$0]) }
+    pixelText("ZOLT", x: 84, y: 96, px: 26, shadow: pink) { hex(stripes[$0]) }
     pixelText("YOUR TINY PIXEL SIDEKICK", x: 88, y: 314, px: 4, color: .white, shadow: hex("#3A0E5E"))
     pixelText("FOR MACOS · RUNS ON CLAUDE CODE", x: 88, y: 364, px: 3, color: cyan, shadow: hex("#3A0E5E"))
     pixelText("TALKS · LISTENS · TAKES NOTES · HAS IDEAS", x: 88, y: 404, px: 3, color: hex("#FFB000"), shadow: hex("#3A0E5E"))
@@ -311,11 +311,11 @@ private func renderTiles(_ dir: URL) {
     }
 }
 
-/// A big still of Bolt for the README footer.
+/// A big still of Zolt for the README footer.
 private func renderSprite(_ dir: URL) {
     let ctx = canvas(14 * 16, 13 * 16)
-    drawBolt(at: .zero, scale: 16)
-    writePNG(ctx, dir.appendingPathComponent("bolt.png"))
+    drawZolt(at: .zero, scale: 16)
+    writePNG(ctx, dir.appendingPathComponent("zolt.png"))
 }
 
 func runRenderArt(_ path: String) -> Never {

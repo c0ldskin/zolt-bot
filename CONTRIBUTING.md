@@ -1,6 +1,6 @@
-# Contributing to Bolt 🤖
+# Contributing to Zolt 🤖
 
-Thanks for wanting to help Bolt grow!
+Thanks for wanting to help Zolt grow!
 
 ## Build
 
@@ -28,7 +28,7 @@ Everything is plain Swift compiled with `swiftc`, so there's no Xcode project. T
 
 ## House rules
 
-- Keep Bolt **asking before acting**. Don't bypass the Allow/Deny hook.
+- Keep Zolt **asking before acting**. Don't bypass the Allow/Deny hook.
 - Keep meeting notes **opt-in** every time.
-- If your change shows up visually, regenerate the art with `build/Bolt.app/Contents/MacOS/Bolt --render-art art`.
-- Be kind. Bolt is.
+- If your change shows up visually, regenerate the art with `build/Zolt.app/Contents/MacOS/Zolt --render-art art`.
+- Be kind. Zolt is.

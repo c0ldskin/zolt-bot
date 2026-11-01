@@ -5,7 +5,7 @@ import Carbon.HIToolbox
 
 // MARK: - Sprite
 
-let boltGrid = [
+let zoltGrid = [
     "..o........o..",
     "..oa......ao..",
     "..oaooooooao..",
@@ -36,12 +36,12 @@ let accent = hex("#EF9F27")
 
 enum Eyes { case open, closed, left, right, bright }
 
-/// Draws Bolt into a flipped coordinate space with its top-left at `origin`.
-func drawBolt(at origin: CGPoint, scale: CGFloat, eyes: Eyes = .open, mouthShut: Bool = false) {
+/// Draws Zolt into a flipped coordinate space with its top-left at `origin`.
+func drawZolt(at origin: CGPoint, scale: CGFloat, eyes: Eyes = .open, mouthShut: Bool = false) {
     func cell(_ x: Int, _ y: Int) -> NSRect {
         NSRect(x: origin.x + CGFloat(x) * scale, y: origin.y + CGFloat(y) * scale, width: scale, height: scale)
     }
-    for (y, row) in boltGrid.enumerated() {
+    for (y, row) in zoltGrid.enumerated() {
         for (x, ch) in row.enumerated() where ch != "." {
             var k = ch
             if k == "e" { k = "s" } // Plain visor; eyes are drawn on top below.
@@ -50,7 +50,7 @@ func drawBolt(at origin: CGPoint, scale: CGFloat, eyes: Eyes = .open, mouthShut:
             cell(x, y).fill()
         }
     }
-    guard let eyeRow = boltGrid.firstIndex(where: { $0.contains("e") }) else { return }
+    guard let eyeRow = zoltGrid.firstIndex(where: { $0.contains("e") }) else { return }
     switch eyes {
     case .closed:
         palette["e"]!.withAlphaComponent(0.6).setFill()
@@ -67,7 +67,7 @@ func drawBolt(at origin: CGPoint, scale: CGFloat, eyes: Eyes = .open, mouthShut:
     }
 }
 
-/// Small pixel lightbulb shown when Bolt has an idea.
+/// Small pixel lightbulb shown when Zolt has an idea.
 let bulbGrid = [".yyy.", "yyyyy", "yyyyy", ".yyy.", ".ggg.", "..g.."]
 /// Pixel "Z" for snoring.
 let zGrid = ["zzzz", "..z.", ".z..", "zzzz"]
@@ -98,7 +98,7 @@ final class SpriteView: NSView {
     /// Two quick happy hops.
     func hop() { hopStart = tick }
 
-    /// Lightbulb plus a hop, for when Bolt comes up with an idea.
+    /// Lightbulb plus a hop, for when Zolt comes up with an idea.
     func showIdea() {
         ideaUntil = tick + 150
         hop()
@@ -129,7 +129,7 @@ final class SpriteView: NSView {
         else if glance != 0 { eyes = glance < 0 ? .left : .right }
         else { eyes = .open }
 
-        drawBolt(at: CGPoint(x: ox, y: oy), scale: scale, eyes: eyes,
+        drawZolt(at: CGPoint(x: ox, y: oy), scale: scale, eyes: eyes,
                  mouthShut: mood == .talking && (tick / 5) % 2 == 0)
 
         if takingNotes { drawHeadset(ox: ox, oy: oy) }
@@ -360,7 +360,7 @@ final class BubbleView: NSView {
         let border = NSBezierPath(rect: body)
         border.lineWidth = 3
         border.stroke()
-        // Stepped pixel tail pointing down at Bolt.
+        // Stepped pixel tail pointing down at Zolt.
         let cx = (bounds.midX).rounded()
         palette["o"]!.setFill()
         NSRect(x: cx - 6, y: tail - 2, width: 12, height: 4).fill()
@@ -424,7 +424,7 @@ final class Listener {
         let format = input.outputFormat(forBus: 0)
         guard format.sampleRate > 0 && format.channelCount > 0 else {
             log("no usable mic input: \(format)")
-            onError?("I can't hear any microphone. Check System Settings → Sound → Input, and that Bolt is allowed under Privacy & Security → Microphone.")
+            onError?("I can't hear any microphone. Check System Settings → Sound → Input, and that Zolt is allowed under Privacy & Security → Microphone.")
             return
         }
         log("listening with \(format), onDevice=\(onDevice)")
@@ -489,13 +489,13 @@ final class Listener {
     }
 }
 
-/// Appends a line to ~/.bolt/bolt.log for troubleshooting. It records what Bolt does, never what
-/// anyone said. Once it passes 512 KB it's moved to bolt.old.log (replacing the older one).
+/// Appends a line to ~/.zolt/zolt.log for troubleshooting. It records what Zolt does, never what
+/// anyone said. Once it passes 512 KB it's moved to zolt.old.log (replacing the older one).
 func log(_ message: String) {
-    let url = URL(fileURLWithPath: NSHomeDirectory()).appendingPathComponent(".bolt/bolt.log")
+    let url = URL(fileURLWithPath: NSHomeDirectory()).appendingPathComponent(".zolt/zolt.log")
     let fm = FileManager.default
     if let size = (try? fm.attributesOfItem(atPath: url.path))?[.size] as? Int, size > 512 * 1024 {
-        let old = url.deletingLastPathComponent().appendingPathComponent("bolt.old.log")
+        let old = url.deletingLastPathComponent().appendingPathComponent("zolt.old.log")
         try? fm.removeItem(at: old)
         try? fm.moveItem(at: url, to: old)
     }
@@ -513,7 +513,7 @@ func log(_ message: String) {
 
 final class Brain {
     static let persona = """
-    You are Bolt, a tiny pixel-art robot companion who lives on the user's Mac desktop. \
+    You are Zolt, a tiny pixel-art robot companion who lives on the user's Mac desktop. \
     The user usually talks to you by voice, so their words may contain transcription mistakes. \
     Reply in one to three short, friendly sentences of plain text: no markdown, no headings, \
     and no lists unless they ask. Be playful but genuinely useful. When asked for ideas, give a \
@@ -539,13 +539,13 @@ final class Brain {
     /// else, web searches included, goes through the Allow/Deny dialog.
     static let readOnlyTools = ["Read", "Glob", "Grep"]
     static var settingsFile: URL {
-        URL(fileURLWithPath: NSHomeDirectory()).appendingPathComponent(".bolt/settings.json")
+        URL(fileURLWithPath: NSHomeDirectory()).appendingPathComponent(".zolt/settings.json")
     }
 
-    /// Places in the home folder that hold passwords, keys or private messages. Bolt never reads them.
+    /// Places in the home folder that hold passwords, keys or private messages. Zolt never reads them.
     static let secretFolders = [
         ".ssh", ".aws", ".gnupg", ".kube", ".docker", ".azure", ".config/gcloud", ".config/gh",
-        ".netrc", ".npmrc", ".pypirc", ".git-credentials", ".claude", ".bolt/settings.json",
+        ".netrc", ".npmrc", ".pypirc", ".git-credentials", ".claude", ".zolt/settings.json",
         "Library/Keychains", "Library/Cookies", "Library/Mail", "Library/Messages", "Library/Safari",
         "Library/Application Support/Google/Chrome", "Library/Application Support/Firefox",
         "Library/Application Support/1Password", "Library/Group Containers/2BUA8C4S2C.com.1password",
@@ -579,11 +579,11 @@ final class Brain {
             try? data.write(to: settingsFile)
         }
     }
-    static let setupMessage = "I can't find my brain! Install Claude Code (see Bolt's README), sign in once with `claude`, then restart me."
+    static let setupMessage = "I can't find my brain! Install Claude Code (see Zolt's README), sign in once with `claude`, then restart me."
 
     /// Looked up on every use, so a fresh install or app update is picked up without relaunching.
     var path: String? { Brain.findClaude() }
-    let home = URL(fileURLWithPath: NSHomeDirectory()).appendingPathComponent(".bolt")
+    let home = URL(fileURLWithPath: NSHomeDirectory()).appendingPathComponent(".zolt")
     private var sessionFile: URL { home.appendingPathComponent("session") }
 
     init() {
@@ -629,7 +629,7 @@ final class Brain {
             let signedOut = out.contains("Not logged in")
             if !ok && !signedOut { (ok, out) = self.run(path, text, resume: false) } // Start a fresh conversation.
             let reply = ok ? out
-                : signedOut ? "My brain isn't signed in yet. Install Claude Code and sign in (see Bolt's README), then talk to me again."
+                : signedOut ? "My brain isn't signed in yet. Install Claude Code and sign in (see Zolt's README), then talk to me again."
                 : "Hmm, my brain hiccuped: \(out.prefix(200))"
             DispatchQueue.main.async { done(reply) }
         }
@@ -660,7 +660,7 @@ final class Brain {
     an empty section. Output only the notes.
     """
 
-    /// One-off summary, kept out of Bolt's chat conversation. The transcript goes in on stdin.
+    /// One-off summary, kept out of Zolt's chat conversation. The transcript goes in on stdin.
     func summarize(_ transcript: String, done: @escaping (String?) -> Void) {
         guard let path else { done(nil); return }
         DispatchQueue.global(qos: .userInitiated).async {
@@ -684,7 +684,7 @@ final class Brain {
     """
 
     /// Drafts a short answer to a question heard in a meeting; nil when it isn't worth answering.
-    /// Uses a quicker model and stays out of Bolt's chat conversation.
+    /// Uses a quicker model and stays out of Zolt's chat conversation.
     func suggestAnswer(question: String, context: String, done: @escaping (String?) -> Void) {
         guard let path else { done(nil); return }
         DispatchQueue.global(qos: .userInitiated).async {
@@ -746,7 +746,7 @@ func registerHotKey(_ handler: @escaping () -> Void) {
         DispatchQueue.main.async { hotKeyHandler?() }
         return noErr
     }, 1, &spec, nil, nil)
-    let id = EventHotKeyID(signature: OSType(0x424F_4C54), id: 1) // "BOLT"
+    let id = EventHotKeyID(signature: OSType(0x5A4F_4C54), id: 1) // "ZOLT"
     RegisterEventHotKey(UInt32(kVK_Space), UInt32(controlKey | optionKey), id,
                         GetApplicationEventTarget(), 0, &hotKeyRef)
 }
@@ -859,7 +859,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, AVSpeechSynthesizerDel
         if brain.path == nil {
             say(Brain.setupMessage, speak: false, sticky: true)
         } else {
-            say("Hi, I'm Bolt! Click me or press ⌃⌥Space, then talk.", speak: false)
+            say("Hi, I'm Zolt! Click me or press ⌃⌥Space, then talk.", speak: false)
         }
     }
 
@@ -888,8 +888,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, AVSpeechSynthesizerDel
         content.addSubview(bubble)
         window.contentView = content
 
-        window.setFrameAutosaveName("BoltWindow")
-        if !window.setFrameUsingName("BoltWindow"), let screen = NSScreen.main {
+        window.setFrameAutosaveName("ZoltWindow")
+        if !window.setFrameUsingName("ZoltWindow"), let screen = NSScreen.main {
             let v = screen.visibleFrame
             window.setFrameOrigin(NSPoint(x: v.maxX - width - 20, y: v.minY + 20))
         }
@@ -899,7 +899,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, AVSpeechSynthesizerDel
     func buildStatusItem() {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
         let icon = NSImage(size: NSSize(width: 18, height: 18), flipped: true) { _ in
-            drawBolt(at: CGPoint(x: 0, y: 2), scale: 18.0 / 14.0)
+            drawZolt(at: CGPoint(x: 0, y: 2), scale: 18.0 / 14.0)
             return true
         }
         statusItem.button?.image = icon
@@ -908,8 +908,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, AVSpeechSynthesizerDel
 
     func makeMenu() -> NSMenu {
         let menu = NSMenu()
-        menu.addItem(item("Talk to Bolt  (⌃⌥Space)", #selector(talkClicked)))
-        menu.addItem(item("Type to Bolt…", #selector(typeClicked)))
+        menu.addItem(item("Talk to Zolt  (⌃⌥Space)", #selector(talkClicked)))
+        menu.addItem(item("Type to Zolt…", #selector(typeClicked)))
         menu.addItem(item("Look at my screen…", #selector(lookClicked)))
         menu.addItem(item("Give me an idea", #selector(ideaClicked)))
         menu.addItem(.separator())
@@ -940,7 +940,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, AVSpeechSynthesizerDel
         menu.addItem(ideas)
         menu.addItem(item("Start a new conversation", #selector(newConversation)))
         menu.addItem(.separator())
-        menu.addItem(item("Quit Bolt", #selector(quit)))
+        menu.addItem(item("Quit Zolt", #selector(quit)))
         return menu
     }
 
@@ -957,7 +957,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, AVSpeechSynthesizerDel
 
     // MARK: Conversation
 
-    /// Resets the nap countdown, waking Bolt with a little hop if it was asleep.
+    /// Resets the nap countdown, waking Zolt with a little hop if it was asleep.
     func noteActivity() {
         lastActivity = Date()
         if sprite.asleep {
@@ -1006,7 +1006,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, AVSpeechSynthesizerDel
             switch result {
             case .success(let file):
                 self.say("“\(text)”\n\nLooking… thinking…", speak: false, sticky: true)
-                ask("\(text)\n\n[Bolt just took a screenshot of the user's screen (Bolt's own windows hidden). Read it at \(file.path) to see what they're looking at.]")
+                ask("\(text)\n\n[Zolt just took a screenshot of the user's screen (Zolt's own windows hidden). Read it at \(file.path) to see what they're looking at.]")
             case .failure(let error):
                 self.busy = false
                 self.sprite.mood = .idle
@@ -1205,12 +1205,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, AVSpeechSynthesizerDel
     }
 
     @objc func typeClicked() {
-        if let text = askText("Tell Bolt something", placeholder: "Give me an idea for dinner"), !busy { send(text) }
+        if let text = askText("Tell Zolt something", placeholder: "Give me an idea for dinner"), !busy { send(text) }
     }
 
     @objc func lookClicked() {
         guard !busy else { return }
-        let text = askText("What should Bolt look at?", placeholder: "What do you think of my LinkedIn profile?",
+        let text = askText("What should Zolt look at?", placeholder: "What do you think of my LinkedIn profile?",
                            button: "Look") ?? "What do you see on my screen?"
         // Let the dialog close before the screenshot.
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) { self.send(text, lookAtScreen: true) }
@@ -1222,7 +1222,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, AVSpeechSynthesizerDel
         refreshMenus()
         guard !busy && !ears.isListening else { return }
         voice.stopSpeaking(at: .immediate)
-        say("Greetings, human. I am Bolt.", speak: true)
+        say("Greetings, human. I am Zolt.", speak: true)
     }
 
     @objc func toggleIdeas() { ideasOn.toggle(); refreshMenus() }
@@ -1237,7 +1237,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, AVSpeechSynthesizerDel
 
 // MARK: - Confirm mode (Claude Code PreToolUse hook)
 
-/// Run as `Bolt --confirm`: reads the tool request JSON on stdin, asks the user, prints the decision.
+/// Run as `Zolt --confirm`: reads the tool request JSON on stdin, asks the user, prints the decision.
 /// Anything other than a click on Allow (Deny, closing, timeout, a crash) leaves the action blocked.
 func runConfirm() -> Never {
     let input = FileHandle.standardInput.readDataToEndOfFile()
@@ -1260,7 +1260,7 @@ func runConfirm() -> Never {
         // Reading is allowed without asking, except for places that hold secrets.
         let touched = params.values.compactMap { $0 as? String }
         if touched.contains(where: Brain.isSecretPath) {
-            decide(false, "That location may hold passwords or keys, so Bolt never reads it.")
+            decide(false, "That location may hold passwords or keys, so Zolt never reads it.")
         }
         exit(0)
     }
@@ -1295,7 +1295,7 @@ func runConfirm() -> Never {
     app.setActivationPolicy(.accessory)
     app.activate(ignoringOtherApps: true)
     let alert = NSAlert()
-    alert.messageText = "Bolt wants to do something"
+    alert.messageText = "Zolt wants to do something"
     alert.informativeText = summary + (detail.count > 300 ? "\n\nThis one is long. Scroll to read all of it before allowing." : "")
     // The full text, never cut short, so nothing can hide past the end of what's shown.
     let box = NSScrollView(frame: NSRect(x: 0, y: 0, width: 420, height: detail.count > 300 ? 220 : 90))
@@ -1312,7 +1312,7 @@ func runConfirm() -> Never {
     box.documentView = field
     alert.accessoryView = box
     alert.icon = NSImage(size: NSSize(width: 64, height: 64), flipped: true) { _ in
-        drawBolt(at: CGPoint(x: 4, y: 6), scale: 4)
+        drawZolt(at: CGPoint(x: 4, y: 6), scale: 4)
         return true
     }
     alert.addButton(withTitle: "Deny")  // Default button, so a stray Return can't approve.
@@ -1324,7 +1324,7 @@ func runConfirm() -> Never {
     decide(allowed, allowed ? "The user clicked Allow." : "The user denied this action.")
 }
 
-/// `Bolt --render-icon <dir.iconset>`: writes the app icon PNGs (used by build.sh).
+/// `Zolt --render-icon <dir.iconset>`: writes the app icon PNGs (used by build.sh).
 func renderIconSet(_ dir: String) -> Never {
     try? FileManager.default.createDirectory(atPath: dir, withIntermediateDirectories: true)
     for base in [16, 32, 128, 256, 512] {
@@ -1336,7 +1336,7 @@ func renderIconSet(_ dir: String) -> Never {
             NSGraphicsContext.saveGraphicsState()
             NSGraphicsContext.current = NSGraphicsContext(bitmapImageRep: rep)
             let s = CGFloat(px)
-            // Flip so drawBolt's top-left origin works.
+            // Flip so drawZolt's top-left origin works.
             let flip = NSAffineTransform()
             flip.translateX(by: 0, yBy: s)
             flip.scaleX(by: 1, yBy: -1)
@@ -1347,7 +1347,7 @@ func renderIconSet(_ dir: String) -> Never {
                          xRadius: s * 0.2, yRadius: s * 0.2).fill()
             let scale = (s * 0.62 / 14).rounded(.down) > 0 ? (s * 0.62 / 14).rounded(.down) : s * 0.62 / 14
             let size = scale * 14
-            drawBolt(at: CGPoint(x: ((s - size) / 2).rounded(), y: ((s - scale * 13) / 2).rounded()), scale: scale)
+            drawZolt(at: CGPoint(x: ((s - size) / 2).rounded(), y: ((s - scale * 13) / 2).rounded()), scale: scale)
             NSGraphicsContext.restoreGraphicsState()
             let name = mult == 1 ? "icon_\(base)x\(base).png" : "icon_\(base)x\(base)@2x.png"
             try? rep.representation(using: .png, properties: [:])?.write(to: URL(fileURLWithPath: dir).appendingPathComponent(name))
@@ -1366,7 +1366,7 @@ if CommandLine.arguments.contains("--confirm") { runConfirm() }
 if let i = CommandLine.arguments.firstIndex(of: "--transcribe-file"), i + 1 < CommandLine.arguments.count {
     runTranscribeFile(CommandLine.arguments[i + 1])
 }
-// Test mode: prints whether a line looks like a question and the answer Bolt would suggest.
+// Test mode: prints whether a line looks like a question and the answer Zolt would suggest.
 if let i = CommandLine.arguments.firstIndex(of: "--answer-test"), i + 1 < CommandLine.arguments.count {
     let line = CommandLine.arguments[i + 1]
     print("looks like a question: \(looksLikeQuestion(line))")
@@ -1377,6 +1377,29 @@ if let i = CommandLine.arguments.firstIndex(of: "--answer-test"), i + 1 < Comman
     RunLoop.main.run()
 }
 
+/// Zolt used to be called Bolt. Brings over its folders and settings once, so nothing is lost.
+func migrateFromBolt() {
+    let fm = FileManager.default
+    let home = URL(fileURLWithPath: NSHomeDirectory())
+    for (old, new) in [(".bolt", ".zolt"), ("Bolt Meeting Notes", "Zolt Meeting Notes")] {
+        let from = home.appendingPathComponent(old), to = home.appendingPathComponent(new)
+        if fm.fileExists(atPath: from.path) && !fm.fileExists(atPath: to.path) {
+            try? fm.moveItem(at: from, to: to)
+        }
+    }
+    let dir = home.appendingPathComponent(".zolt")
+    try? fm.moveItem(at: dir.appendingPathComponent("bolt.log"), to: dir.appendingPathComponent("zolt.log"))
+
+    let defaults = UserDefaults.standard
+    if defaults.object(forKey: "migratedFromBolt") == nil, let old = UserDefaults(suiteName: "local.minime.bolt") {
+        for key in ["speakReplies", "voiceName", "ideasOn", "watchTeams", "answerQuestions"] {
+            if let value = old.object(forKey: key) { defaults.set(value, forKey: key) }
+        }
+        defaults.set(true, forKey: "migratedFromBolt")
+    }
+}
+
+migrateFromBolt()
 Brain.writeSettings()
 let app = NSApplication.shared
 let delegate = AppDelegate()

@@ -1,6 +1,6 @@
 import Cocoa
 
-/// Floating window that shows the meeting transcript as it happens. It starts small next to Bolt,
+/// Floating window that shows the meeting transcript as it happens. It starts small next to Zolt,
 /// grows taller with every line until it reaches most of the screen, then scrolls to follow the
 /// newest words (unless you've scrolled up to read something).
 final class LiveNotesPanel: NSObject, NSWindowDelegate {
@@ -84,7 +84,7 @@ final class LiveNotesPanel: NSObject, NSWindowDelegate {
         panel.contentView = content
     }
 
-    /// Opens a fresh, empty window beside Bolt's window.
+    /// Opens a fresh, empty window beside Zolt's window.
     func begin(near anchor: NSRect) {
         committed = NSMutableAttributedString()
         partials = [:]
