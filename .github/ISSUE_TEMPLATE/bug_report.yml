@@ -1,0 +1,60 @@
+name: 🐛 Bug report
+description: Zolt glitched? Tell us what happened.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping fix Zolt! 🤖⚡
+        **Security problem?** Please don't post it here. See [SECURITY.md](../blob/main/SECURITY.md) instead.
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What did you do, what did you expect, and what did Zolt do instead?
+      placeholder: I clicked Zolt and said "open Spotify", but the bubble said…
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Which part?
+      options:
+        - Talking / listening
+        - Voice
+        - Actions (Allow/Deny)
+        - Looking at the screen
+        - Meeting notes
+        - Suggested answers
+        - Animations / looks
+        - Building or installing
+        - Something else
+    validations:
+      required: true
+  - type: input
+    id: macos
+    attributes:
+      label: macOS version
+      placeholder: "26.1"
+    validations:
+      required: true
+  - type: dropdown
+    id: chip
+    attributes:
+      label: Mac chip
+      options:
+        - Apple Silicon (M1 or later)
+        - Intel
+  - type: dropdown
+    id: install
+    attributes:
+      label: How did you install Zolt?
+      options:
+        - Downloaded from Releases
+        - Built from source with build.sh
+  - type: textarea
+    id: log
+    attributes:
+      label: Log (optional)
+      description: The last lines of `~/.zolt/zolt.log`. It records what Zolt did, never what anyone said, but please check it before pasting.
+      render: text

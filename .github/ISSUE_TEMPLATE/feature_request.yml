@@ -1,0 +1,21 @@
+name: 💡 Idea or feature
+description: Zolt loves ideas. What should it learn next?
+labels: ["idea"]
+body:
+  - type: textarea
+    id: idea
+    attributes:
+      label: Your idea
+      placeholder: Zolt should do a little dance when…
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: Why would it be fun or useful?
+  - type: checkboxes
+    id: help
+    attributes:
+      label: Want to help build it?
+      options:
+        - label: I'd like to try making this myself

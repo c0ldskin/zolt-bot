@@ -9,6 +9,9 @@
 <a href="https://claude.com/claude-code"><img src="https://img.shields.io/badge/brain-Claude%20Code-29E0FF?style=for-the-badge&logoColor=white" alt="Brain: Claude Code"></a>
 <img src="https://img.shields.io/badge/pixels-100%25-7B5CFF?style=for-the-badge" alt="100% pixels">
 <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-2BD67B?style=for-the-badge" alt="MIT license"></a>
+<br>
+<a href="https://github.com/c0ldskin/zolt-bot/releases/latest"><img src="https://img.shields.io/github/v/release/c0ldskin/zolt-bot?style=for-the-badge&color=FF6B3D&label=download" alt="Latest release"></a>
+<a href="https://github.com/c0ldskin/zolt-bot/actions/workflows/build.yml"><img src="https://img.shields.io/github/actions/workflow/status/c0ldskin/zolt-bot/build.yml?branch=main&style=for-the-badge&label=build" alt="Build status"></a>
 
 ### 🤖 A tiny pixel robot that floats on your desktop, listens when you call, talks back in a glorious 80s robot voice, does things on your Mac (with your OK), and takes your meeting notes.
 
@@ -53,24 +56,38 @@
 
 ## 🚀 Quick start
 
-**You need:** macOS 26 (Tahoe) or later · Apple's Command Line Tools · a Claude account
+**You need:** macOS 26 (Tahoe) or later (Apple Silicon or Intel) and a Claude account.
+
+### Step 1: give Zolt a brain
+
+Zolt thinks with [Claude Code](https://claude.com/claude-code). Install it, then run `claude` once and sign in:
 
 ```bash
-# 1. Apple's compiler (skip if you already have it)
-xcode-select --install
-
-# 2. Claude Code, Zolt's brain. Run `claude` once afterwards to sign in.
 curl -fsSL https://claude.ai/install.sh | bash
-
-# 3. Grab Zolt and build it
-git clone https://github.com/c0ldskin/zolt-bot.git
-cd zolt-bot
-./build.sh --run
 ```
 
-That's it. No Xcode project and no dependencies: `build.sh` compiles with `swiftc`, draws the app icon from Zolt's own sprite, installs to `~/Applications/Zolt.app` and drops a **Zolt** shortcut on your Desktop.
+### Step 2: get Zolt
 
-The first time you use each feature, macOS asks for permission: **Microphone** and **Speech Recognition** to talk, **Screen & System Audio Recording** for screenshots and meeting audio.
+**Option A: download** (easiest)
+
+1. Grab **Zolt-x.y.z.zip** from the [latest release](https://github.com/c0ldskin/zolt-bot/releases/latest), unzip it, and drag **Zolt** into your Applications folder.
+2. Open it. The first time, macOS says it can't check the app, because Zolt isn't signed with a paid Apple Developer certificate yet.
+3. Go to **System Settings → Privacy & Security**, scroll down, click **Open Anyway** next to Zolt, and confirm. You only do this once.
+
+**Option B: build it yourself** (no Xcode needed, just Apple's command-line tools)
+
+```bash
+xcode-select --install          # skip if you already have it
+git clone https://github.com/c0ldskin/zolt-bot.git
+cd zolt-bot
+./build.sh --run --shortcut
+```
+
+`build.sh` compiles with `swiftc`, draws the app icon from Zolt's own sprite, installs to `~/Applications/Zolt.app` and, with `--shortcut`, puts a **Zolt** shortcut on your Desktop. Builds you make yourself open without any warning.
+
+### Step 3: say hi
+
+Click Zolt and talk. The first time you use each feature, macOS asks for permission: **Microphone** and **Speech Recognition** to talk, **Screen & System Audio Recording** for screenshots and meeting audio.
 
 ## 🕹️ Controls
 
@@ -190,11 +207,13 @@ System Settings → General → Login Items → **+** → pick `~/Applications/Z
 - [x] Screen viewing
 - [x] Meeting notes for Teams, Zoom and Meet, with a live transcript
 - [x] Suggested answers during calls
+- [x] Downloadable app for Apple Silicon and Intel
+- [ ] Signed and notarized download (no "Open Anyway" step)
 - [ ] 🕺 A dance animation
 - [ ] "Hey Zolt" wake word
 - [ ] Always-allow list for harmless actions
 - [ ] Skins: swap in your own pixel character
-- [ ] Redraw only when something changes, to save battery
+- [ ] More languages than US English
 
 Got an idea? [Open an issue](../../issues). Zolt loves ideas. 💡
 

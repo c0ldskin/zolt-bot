@@ -234,7 +234,9 @@ func looksLikeQuestion(_ text: String) -> Bool {
 
 /// Records your mic ("You") and Teams' sound ("Others"), transcribes both live into a Markdown
 /// file in ~/Zolt Meeting Notes, and adds a Claude summary when you stop.
-final class NoteTaker {
+// Used from the main thread, apart from the audio callbacks that only feed the transcribers
+// and note the time of the last sound.
+final class NoteTaker: @unchecked Sendable {
     static let folder = URL(fileURLWithPath: NSHomeDirectory()).appendingPathComponent("Zolt Meeting Notes")
 
     var onStatus: ((String) -> Void)?
@@ -287,7 +289,7 @@ final class NoteTaker {
         you.onPartial = { [weak self] text in DispatchQueue.main.async { self?.onPartial?("You", text) } }
         others.onPartial = { [weak self] text in DispatchQueue.main.async { self?.onPartial?("Others", text) } }
 
-        Task { @MainActor in
+        Task { @MainActor [self] in
             do {
                 try await you.start()
                 try await others.start()
@@ -404,7 +406,7 @@ final class NoteTaker {
         guard active else { return }
         active = false
         stopCapture()
-        Task { @MainActor in
+        Task { @MainActor [self] in
             await you.finish()
             await others.finish()
             flushTimer?.invalidate()

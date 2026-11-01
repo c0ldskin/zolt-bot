@@ -660,12 +660,16 @@ final class Brain {
     an empty section. Output only the notes.
     """
 
+    /// Meeting transcripts contain other people's words, so meeting requests get no tools at all
+    /// (built-in or MCP): nothing said on a call can make Claude read, run or send anything.
+    static let noTools = ["--tools", "", "--strict-mcp-config"]
+
     /// One-off summary, kept out of Zolt's chat conversation. The transcript goes in on stdin.
     func summarize(_ transcript: String, done: @escaping (String?) -> Void) {
         guard let path else { done(nil); return }
         DispatchQueue.global(qos: .userInitiated).async {
             let (ok, out) = self.exec(path, ["-p", "Write meeting notes for the transcript provided on stdin.",
-                                             "--output-format", "text", "--system-prompt", Brain.notesPersona],
+                                             "--output-format", "text", "--system-prompt", Brain.notesPersona] + Brain.noTools,
                                       stdin: transcript, timeout: 600)
             if !ok { log("summary failed: \(out.prefix(300))") }
             DispatchQueue.main.async { done(ok ? out : nil) }
@@ -691,7 +695,7 @@ final class Brain {
             let input = "Recent transcript:\n\(context)\n\nLatest line from Others:\n\(question)"
             let (ok, out) = self.exec(path, ["-p", "Suggest what I could say, using the meeting details on stdin.",
                                              "--model", "sonnet", "--output-format", "text",
-                                             "--system-prompt", Brain.answerPersona],
+                                             "--system-prompt", Brain.answerPersona] + Brain.noTools,
                                       stdin: input, timeout: 90)
             if !ok { log("answer failed: \(out.prefix(300))") }
             let answer = ok && out.trimmingCharacters(in: .whitespacesAndNewlines).uppercased() != "SKIP" ? out : nil
@@ -844,15 +848,21 @@ final class AppDelegate: NSObject, NSApplicationDelegate, AVSpeechSynthesizerDel
         }
         watcher.start()
 
-        let tickTimer = Timer(timeInterval: 1.0 / 30, repeats: true) { [weak self] _ in
+        // Animation runs at 15 fps (each frame advances two 30-fps ticks, so timings stay the same),
+        // 5 fps while napping, and skips drawing when Zolt isn't visible. Keeps idle CPU low.
+        var frame = 0
+        let tickTimer = Timer(timeInterval: 1.0 / 15, repeats: true) { [weak self] _ in
             guard let self else { return }
-            self.sprite.tick += 1
+            frame += 1
+            let step = self.sprite.asleep ? 3 : 1
+            guard frame % step == 0 else { return }
+            self.sprite.tick += 2 * step
             if !self.sprite.asleep && self.sprite.mood == .idle && !self.busy && !self.ears.isListening && !self.notes.active
                 && !self.voice.isSpeaking && Date().timeIntervalSince(self.lastActivity) > self.napAfter {
                 self.sprite.asleep = true
                 self.bubble.isHidden = true
             }
-            self.sprite.needsDisplay = true
+            if self.window.occlusionState.contains(.visible) { self.sprite.needsDisplay = true }
         }
         RunLoop.main.add(tickTimer, forMode: .common)
 

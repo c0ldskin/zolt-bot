@@ -5,8 +5,10 @@ Thanks for wanting to help Zolt grow!
 ## Build
 
 ```bash
-./build.sh          # build and install to ~/Applications
-./build.sh --run    # same, then launch
+./build.sh              # build and install to ~/Applications
+./build.sh --run        # same, then launch
+./build.sh --no-install # just build into build/Zolt.app
+./build.sh --release    # Apple Silicon + Intel build, zipped into build/ (how releases are made)
 ```
 
 Everything is plain Swift compiled with `swiftc`, so there's no Xcode project. The sources are in `Sources/`:
@@ -25,6 +27,10 @@ Everything is plain Swift compiled with `swiftc`, so there's no Xcode project. T
 - A new mood or animation: add it to `SpriteView.draw`, then add a tile in `Art.swift`.
 - A new skin: another pixel grid plus palette.
 - The dance animation on the roadmap.
+
+## Releasing
+
+Bump `CFBundleShortVersionString` in `Info.plist`, add a section to `CHANGELOG.md`, then push a tag like `v0.2.0`. GitHub Actions builds the app and attaches the zip to the release.
 
 ## House rules
 
