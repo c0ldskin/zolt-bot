@@ -361,7 +361,7 @@ final class NoteTaker {
             if pendingYou.count != before { log("dropped \(before - pendingYou.count) echoed line(s)") }
             commit(who, text, at: now)
         } else if recentOthers.contains(where: { isEcho($0.1, w) }) {
-            log("dropped echoed line: \(text.prefix(60))")
+            log("dropped an echoed line")
             onPartial?("You", "")
         } else {
             pendingYou.append((now, text, w))

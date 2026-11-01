@@ -86,7 +86,7 @@ The first time you use each feature, macOS asks for permission: **Microphone** a
 
 ```mermaid
 flowchart LR
-    You(("🧑 You")) -- "voice / ⌃⌥Space" --> Ears["🎙️ Apple Speech<br/>(on your Mac)"]
+    You(("🧑 You")) -- "voice / ⌃⌥Space" --> Ears["🎙️ Apple Speech<br/>recognition"]
     Ears --> Bolt["🤖 Bolt.app<br/>(Swift, AppKit)"]
     Bolt -- "claude -p" --> Brain["🧠 Claude Code CLI"]
     Brain -- "wants to run something" --> Hook{"✋ Allow / Deny<br/>dialog"}
@@ -97,7 +97,7 @@ flowchart LR
     Notes --> Bolt
 ```
 
-- **Ears:** `SFSpeechRecognizer` for commands; macOS 26's `SpeechAnalyzer` for long meeting transcripts.
+- **Ears:** `SFSpeechRecognizer` for commands (Apple may process these on its servers); macOS 26's on-device `SpeechAnalyzer` for long meeting transcripts. English (US) only for now.
 - **Brain:** the Claude Code CLI in print mode, with a persona prompt and conversation memory in `~/.bolt`.
 - **Hands:** Claude Code's `PreToolUse` hook calls back into Bolt's own binary (`Bolt --confirm`), which shows the Allow/Deny dialog. No permission bypass, ever.
 - **Meeting audio:** a Core Audio *process tap* on just the meeting app, plus your mic. The notes window shows "You" and "Others".
@@ -106,11 +106,16 @@ flowchart LR
 ## 🔒 Safety & privacy
 
 - 🎙️ The mic is on **only** while Bolt is listening (you clicked it) or taking notes (you said yes).
-- ✋ Every action on your Mac needs an explicit **Allow**. Reading files and web searches don't ask.
+- ✋ Every action on your Mac needs an explicit **Allow**, and so does every web search. The dialog always shows the full command, however long it is.
+- 📖 Bolt can read files in your home folder without asking (that's how it answers questions about them), **except** places that hold secrets: `.ssh`, `.aws`, `.gnupg`, Keychains, browser and password-manager data, Mail, Messages, `.env` files and similar. Those are blocked twice: by Claude Code's own deny rules and by Bolt's approval hook.
+- 🧱 Bolt treats text from web pages, files and screenshots as information, not instructions.
 - 📝 Bolt **never** starts meeting notes by itself, and it reminds you to tell people they're being transcribed. Check your workplace's rules before using it at work.
 - 💡 Suggested answers stay in the Live notes window. They're never spoken or posted. That window is a normal window, though, so **share a single window, not your whole screen**.
-- 📁 Transcription happens on your Mac. Text you send to Bolt, screenshots you ask about, and meeting transcripts (for the summary) go to Claude through your own Claude Code login.
-- 🗂️ Everything is stored locally: `~/.bolt` (logs and conversation id) and `~/Bolt Meeting Notes` (Markdown notes).
+- 🌐 **What leaves your Mac:**
+  - **Voice commands** go through Apple's speech recognition, which may process them on Apple's servers.
+  - **Meeting audio** is transcribed on your Mac and never sent anywhere as audio.
+  - **Text sent to Claude** through your own Claude Code login: what you say or type to Bolt, screenshots you ask about, files Bolt reads to answer you, and meeting transcripts (for summaries and suggested answers).
+- 🗂️ Everything is stored locally: `~/.bolt` (conversation id and a small troubleshooting log that records what Bolt did, never what anyone said) and `~/Bolt Meeting Notes` (Markdown notes).
 
 ## 🎨 Make it yours
 
