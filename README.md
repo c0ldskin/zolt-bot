@@ -1,6 +1,12 @@
 <div align="center">
 
-<img src="art/banner.png" alt="Zolt — your tiny pixel sidekick for macOS" width="100%">
+<img src="art/banner.png" alt="Zolt, a pixel desktop pet and AI voice assistant for macOS" width="100%">
+
+# Zolt: a pixel desktop pet & AI assistant for macOS
+
+**Talks in an 80s robot voice · Does things on your Mac (with your OK) · Takes Teams, Zoom & Meet notes · Speaks Arabic as Zamil 🇸🇦**
+
+**English** · [العربية](README.ar.md) · [Website](https://c0ldskin.github.io/zolt-bot/) · [Download](https://github.com/c0ldskin/zolt-bot/releases/latest)
 
 <br>
 
@@ -12,6 +18,8 @@
 <br>
 <a href="https://github.com/c0ldskin/zolt-bot/releases/latest"><img src="https://img.shields.io/github/v/release/c0ldskin/zolt-bot?style=for-the-badge&color=FF6B3D&label=download" alt="Latest release"></a>
 <a href="https://github.com/c0ldskin/zolt-bot/actions/workflows/build.yml"><img src="https://img.shields.io/github/actions/workflow/status/c0ldskin/zolt-bot/build.yml?branch=main&style=for-the-badge&label=build" alt="Build status"></a>
+<a href="https://github.com/c0ldskin/zolt-bot/releases"><img src="https://img.shields.io/github/downloads/c0ldskin/zolt-bot/total?style=for-the-badge&color=29E0FF&label=downloads" alt="Total downloads"></a>
+<a href="https://github.com/c0ldskin/zolt-bot/stargazers"><img src="https://img.shields.io/github/stars/c0ldskin/zolt-bot?style=for-the-badge&color=FFE45C&label=stars" alt="GitHub stars"></a>
 
 ### 🤖 A tiny pixel robot that floats on your desktop, listens when you call, talks back in a glorious 80s robot voice, does things on your Mac (with your OK), and takes your meeting notes.
 
@@ -239,7 +247,7 @@ System Settings → General → Login Items → **+** → pick `~/Applications/Z
 - [ ] Skins: swap in your own pixel character
 - [ ] More languages than US English
 
-Got an idea? [Open an issue](../../issues). Zolt loves ideas. 💡
+Got an idea? Share it in [Discussions](https://github.com/c0ldskin/zolt-bot/discussions) or [open an issue](https://github.com/c0ldskin/zolt-bot/issues/new/choose). Zolt loves ideas. 💡
 
 ## 🤝 Contributing
 
