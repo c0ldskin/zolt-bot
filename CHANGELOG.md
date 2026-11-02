@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.3.0 · 2026-11-02
 
 **Zamil is Arabic throughout 🇸🇦**
 - Menus, dialogs, the Allow/Deny prompt, speech bubble messages and the Live notes window are all in Arabic
