@@ -376,13 +376,13 @@ final class Listener {
         SFSpeechRecognizer.requestAuthorization { status in
             DispatchQueue.main.async {
                 guard status == .authorized else {
-                    self.onError?("I need Speech Recognition access. Turn it on in System Settings → Privacy & Security → Speech Recognition.")
+                    self.onError?(robot.t("I need Speech Recognition access. Turn it on in System Settings → Privacy & Security → Speech Recognition.", "أحتاج إذن التعرّف على الكلام. فعّله من إعدادات النظام ← الخصوصية والأمان ← التعرّف على الكلام."))
                     return
                 }
                 AVCaptureDevice.requestAccess(for: .audio) { ok in
                     DispatchQueue.main.async {
                         guard ok else {
-                            self.onError?("I need microphone access. Turn it on in System Settings → Privacy & Security → Microphone.")
+                            self.onError?(robot.t("I need microphone access. Turn it on in System Settings → Privacy & Security → Microphone.", "أحتاج إذن الميكروفون. فعّله من إعدادات النظام ← الخصوصية والأمان ← الميكروفون."))
                             return
                         }
                         self.begin(onDevice: false)
@@ -394,7 +394,7 @@ final class Listener {
 
     private func begin(onDevice: Bool) {
         guard let recognizer, recognizer.isAvailable else {
-            onError?("Speech recognition isn't available right now. Check that Dictation is on in System Settings → Keyboard.")
+            onError?(robot.t("Speech recognition isn't available right now. Check that Dictation is on in System Settings → Keyboard.", "التعرّف على الكلام غير متاح الآن. تأكّد أن الإملاء مفعّل في إعدادات النظام ← لوحة المفاتيح."))
             return
         }
         latest = ""
@@ -409,7 +409,7 @@ final class Listener {
         let format = input.outputFormat(forBus: 0)
         guard format.sampleRate > 0 && format.channelCount > 0 else {
             log("no usable mic input: \(format)")
-            onError?("I can't hear any microphone. Check System Settings → Sound → Input, and that \(robot.name) is allowed under Privacy & Security → Microphone.")
+            onError?(robot.t("I can't hear any microphone. Check System Settings → Sound → Input, and that \(robot.name) is allowed under Privacy & Security → Microphone.", "لا أسمع أي ميكروفون. تحقّق من إعدادات النظام ← الصوت ← الإدخال، ومن السماح لـ\(robot.name) في الخصوصية والأمان ← الميكروفون."))
             return
         }
         log("listening with \(format), onDevice=\(onDevice)")
@@ -419,7 +419,7 @@ final class Listener {
         }
         engine.prepare()
         do { try engine.start() } catch {
-            onError?("Couldn't start the microphone: \(error.localizedDescription)")
+            onError?(robot.t("Couldn't start the microphone: \(error.localizedDescription)", "تعذّر تشغيل الميكروفون: \(error.localizedDescription)"))
             return
         }
         isListening = true
@@ -462,7 +462,7 @@ final class Listener {
         let text = latest.trimmingCharacters(in: .whitespacesAndNewlines)
         log("heard \(text.split(separator: " ").count) words") // Never what was said.
         if text.isEmpty, let error = lastError as NSError?, !Listener.isNoSpeech(error) {
-            onError?("My ears glitched: \(error.localizedDescription) (\(error.domain) \(error.code)). If Dictation is off, turn it on in System Settings → Keyboard.")
+            onError?(robot.t("My ears glitched: \(error.localizedDescription) (\(error.domain) \(error.code)). If Dictation is off, turn it on in System Settings → Keyboard.", "حدث خلل في أذنيّ: \(error.localizedDescription) (\(error.domain) \(error.code)). إذا كان الإملاء متوقفاً، فعّله من إعدادات النظام ← لوحة المفاتيح."))
             return
         }
         onFinal?(text)
@@ -571,7 +571,7 @@ final class Brain {
             try? data.write(to: settingsFile)
         }
     }
-    static let setupMessage = "I can't find my brain! Install Claude Code (see the README), sign in once with `claude`, then restart me."
+    static let setupMessage = robot.t("I can't find my brain! Install Claude Code (see the README), sign in once with `claude`, then restart me.", "لم أجد عقلي! ثبّت Claude Code (راجع ملف README)، وسجّل الدخول مرة واحدة بالأمر `claude`، ثم أعد تشغيلي.")
 
     /// Looked up on every use, so a fresh install or app update is picked up without relaunching.
     var path: String? { Brain.findClaude() }
@@ -621,8 +621,8 @@ final class Brain {
             let signedOut = out.contains("Not logged in")
             if !ok && !signedOut { (ok, out) = self.run(path, text, resume: false) } // Start a fresh conversation.
             let reply = ok ? out
-                : signedOut ? "My brain isn't signed in yet. Install Claude Code and sign in (see the README), then talk to me again."
-                : "Hmm, my brain hiccuped: \(out.prefix(200))"
+                : signedOut ? robot.t("My brain isn't signed in yet. Install Claude Code and sign in (see the README), then talk to me again.", "عقلي لم يسجّل الدخول بعد. ثبّت Claude Code وسجّل الدخول (راجع ملف README)، ثم كلّمني مرة أخرى.")
+                : robot.t("Hmm, my brain hiccuped: \(out.prefix(200))", "حدث خلل بسيط في عقلي: \(out.prefix(200))")
             DispatchQueue.main.async { done(reply) }
         }
     }
@@ -912,22 +912,22 @@ final class AppDelegate: NSObject, NSApplicationDelegate, AVSpeechSynthesizerDel
 
     func makeMenu() -> NSMenu {
         let menu = NSMenu()
-        menu.addItem(item("Talk to \(robot.name)  (\(robot.hotKeyLabel))", #selector(talkClicked)))
-        menu.addItem(item("Type to \(robot.name)…", #selector(typeClicked)))
-        menu.addItem(item("Look at my screen…", #selector(lookClicked)))
-        menu.addItem(item("Give me an idea", #selector(ideaClicked)))
+        menu.addItem(item(robot.t("Talk to \(robot.name)  (\(robot.hotKeyLabel))", "تكلّم مع \(robot.name)  (\(robot.hotKeyLabel))"), #selector(talkClicked)))
+        menu.addItem(item(robot.t("Type to \(robot.name)…", "اكتب لـ\(robot.name)…"), #selector(typeClicked)))
+        menu.addItem(item(robot.t("Look at my screen…", "انظر إلى شاشتي…"), #selector(lookClicked)))
+        menu.addItem(item(robot.t("Give me an idea", "أعطني فكرة"), #selector(ideaClicked)))
         menu.addItem(.separator())
-        menu.addItem(item(notes.active ? "Stop taking notes" : "Start taking notes", #selector(toggleNotes)))
-        menu.addItem(item("Show live notes", #selector(showLiveNotes)))
-        menu.addItem(item("Open meeting notes folder", #selector(openNotesFolder)))
-        let watch = item("Offer notes when meetings start (Teams, Zoom, Meet)", #selector(toggleWatchTeams))
+        menu.addItem(item(notes.active ? robot.t("Stop taking notes", "أوقف التدوين") : robot.t("Start taking notes", "ابدأ التدوين"), #selector(toggleNotes)))
+        menu.addItem(item(robot.t("Show live notes", "اعرض الملاحظات المباشرة"), #selector(showLiveNotes)))
+        menu.addItem(item(robot.t("Open meeting notes folder", "افتح مجلد ملاحظات الاجتماعات"), #selector(openNotesFolder)))
+        let watch = item(robot.t("Offer notes when meetings start (Teams, Zoom, Meet)", "اعرض التدوين عند بدء الاجتماعات (Teams وZoom وMeet)"), #selector(toggleWatchTeams))
         watch.state = watchTeams ? .on : .off
         menu.addItem(watch)
-        let answers = item("Suggest answers to questions in meetings", #selector(toggleAnswers))
+        let answers = item(robot.t("Suggest answers to questions in meetings", "اقترح إجابات لأسئلة الاجتماعات"), #selector(toggleAnswers))
         answers.state = answerQuestions ? .on : .off
         menu.addItem(answers)
         menu.addItem(.separator())
-        let speak = item("Speak replies out loud", #selector(toggleSpeak))
+        let speak = item(robot.t("Speak replies out loud", "انطق الردود بصوت مسموع"), #selector(toggleSpeak))
         speak.state = speakReplies ? .on : .off
         menu.addItem(speak)
         let voiceMenu = NSMenu()
@@ -936,15 +936,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate, AVSpeechSynthesizerDel
             v.state = name == voiceName ? .on : .off
             voiceMenu.addItem(v)
         }
-        let voiceItem = NSMenuItem(title: "Voice", action: nil, keyEquivalent: "")
+        let voiceItem = NSMenuItem(title: robot.t("Voice", "الصوت"), action: nil, keyEquivalent: "")
         voiceItem.submenu = voiceMenu
         menu.addItem(voiceItem)
-        let ideas = item("Pop up ideas every 45 min", #selector(toggleIdeas))
+        let ideas = item(robot.t("Pop up ideas every 45 min", "اقترح أفكاراً كل 45 دقيقة"), #selector(toggleIdeas))
         ideas.state = ideasOn ? .on : .off
         menu.addItem(ideas)
-        menu.addItem(item("Start a new conversation", #selector(newConversation)))
+        menu.addItem(item(robot.t("Start a new conversation", "ابدأ محادثة جديدة"), #selector(newConversation)))
         menu.addItem(.separator())
-        menu.addItem(item("Quit \(robot.name)", #selector(quit)))
+        menu.addItem(item(robot.t("Quit \(robot.name)", "أغلق \(robot.name)"), #selector(quit)))
         return menu
     }
 
@@ -973,14 +973,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate, AVSpeechSynthesizerDel
     func toggleListening() {
         noteActivity()
         if notes.active {
-            say("I'm taking meeting notes, so I'm staying quiet. Right-click me to stop.", speak: false)
+            say(robot.t("I'm taking meeting notes, so I'm staying quiet. Right-click me to stop.", "أدوّن ملاحظات الاجتماع، لذلك سأبقى هادئاً. اضغط عليّ بالزر الأيمن للإيقاف."), speak: false)
             return
         }
         if ears.isListening { ears.finish(); return }
         if busy { return }
         voice.stopSpeaking(at: .immediate)
         sprite.mood = .listening
-        say("I'm listening…", speak: false, sticky: true)
+        say(robot.t("I'm listening…", "أسمعك…"), speak: false, sticky: true)
         ears.start()
     }
 
@@ -1000,16 +1000,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate, AVSpeechSynthesizerDel
             }
         }
         guard lookAtScreen ?? Screen.wantsLook(text) else {
-            say(quote ? "“\(text)”\n\nThinking…" : "Thinking…", speak: false, sticky: true)
+            say(quote ? robot.t("“\(text)”\n\nThinking…", "«\(text)»\n\nأفكّر…") : robot.t("Thinking…", "أفكّر…"), speak: false, sticky: true)
             ask(text)
             return
         }
-        say("“\(text)”\n\nTaking a look at your screen…", speak: false, sticky: true)
+        say(robot.t("“\(text)”\n\nTaking a look at your screen…", "«\(text)»\n\nأنظر إلى شاشتك…"), speak: false, sticky: true)
         Screen.capture { [weak self] result in
             guard let self else { return }
             switch result {
             case .success(let file):
-                self.say("“\(text)”\n\nLooking… thinking…", speak: false, sticky: true)
+                self.say(robot.t("“\(text)”\n\nLooking… thinking…", "«\(text)»\n\nأنظر… وأفكّر…"), speak: false, sticky: true)
                 ask("\(text)\n\n[\(robot.name) just took a screenshot of the user's screen (\(robot.name)'s own windows hidden). Read it at \(file.path) to see what they're looking at.]")
             case .failure(let error):
                 self.busy = false
@@ -1104,13 +1104,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate, AVSpeechSynthesizerDel
         NSApp.activate(ignoringOtherApps: true)
         let alert = NSAlert()
         // A browser using the mic is probably Google Meet, but could be another web call.
-        alert.messageText = app.name == "Google Meet" ? "Browser call started (Google Meet?)" : "\(app.name) meeting started"
-        alert.informativeText = "Want me to take notes? I'll transcribe you and the others on the call, then write a summary when it ends."
-            + (answerQuestions ? " I'll also suggest answers when someone asks a question, in the Live notes window only." : "")
-            + (robot.arabic ? "\n\nMeeting notes are in English for now: Arabic transcription isn't available on macOS yet." : "")
-            + "\n\nPlease let everyone know they're being transcribed."
-        alert.addButton(withTitle: "Take notes")
-        alert.addButton(withTitle: "Not now")
+        alert.messageText = app.name == "Google Meet" ? robot.t("Browser call started (Google Meet?)", "بدأت مكالمة في المتصفح (Google Meet؟)") : robot.t("\(app.name) meeting started", "بدأ اجتماع \(app.name)")
+        alert.informativeText = robot.t("Want me to take notes? I'll transcribe you and the others on the call, then write a summary when it ends.", "هل تريد أن أدوّن الملاحظات؟ سأفرّغ كلامك وكلام الحاضرين، ثم أكتب ملخصاً عند انتهاء الاجتماع.")
+            + (answerQuestions ? robot.t(" I'll also suggest answers when someone asks a question, in the Live notes window only.", " وسأقترح إجابات أيضاً عندما يُطرح سؤال، في نافذة الملاحظات المباشرة فقط.") : "")
+            + (robot.arabic ? robot.t("\n\nMeeting notes are in English for now: Arabic transcription isn't available on macOS yet.", "\n\nالملاحظات بالإنجليزية حالياً، لأن macOS لا يدعم تفريغ الاجتماعات بالعربية بعد.") : "")
+            + robot.t("\n\nPlease let everyone know they're being transcribed.", "\n\nمن فضلك أخبر الحاضرين أنه يتم تفريغ كلامهم.")
+        alert.addButton(withTitle: robot.t("Take notes", "دوّن الملاحظات"))
+        alert.addButton(withTitle: robot.t("Not now", "ليس الآن"))
         alert.window.level = .floating
         if alert.runModal() == .alertFirstButtonReturn { startNotes(meeting: true) }
     }
@@ -1127,7 +1127,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, AVSpeechSynthesizerDel
         sprite.takingNotes = true
         sprite.mood = .idle
         refreshMenus()
-        say("Taking notes! I'll stay quiet until it's over.", speak: false)
+        say(robot.t("Taking notes! I'll stay quiet until it's over.", "بدأت التدوين! سأبقى هادئاً حتى ينتهي الاجتماع."), speak: false)
     }
 
     func stopNotes() {
@@ -1135,15 +1135,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate, AVSpeechSynthesizerDel
         sprite.takingNotes = false
         busy = true
         sprite.mood = .thinking
-        say("Writing up your notes…", speak: false, sticky: true)
-        livePanel.finish(message: "Writing up your notes…")
+        say(robot.t("Writing up your notes…", "أكتب ملاحظاتك…"), speak: false, sticky: true)
+        livePanel.finish(message: robot.t("Writing up your notes…", "أكتب ملاحظاتك…"))
         notes.stop(brain: brain) { [weak self] message in
             guard let self else { return }
             self.busy = false
             self.sprite.mood = .idle
             self.sprite.showIdea()
             self.refreshMenus()
-            self.livePanel.finish(message: message.hasPrefix("Notes saved") ? "✓ Notes saved" : message)
+            self.livePanel.finish(message: (message.hasPrefix("Notes saved") || message.hasPrefix("حفظت الملاحظات")) ? robot.t("✓ Notes saved", "✓ حُفظت الملاحظات") : message)
             self.say(message, speak: false)
             if let file = self.notes.file {
                 self.bubbleAction = { NSWorkspace.shared.open(file) }
@@ -1200,12 +1200,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, AVSpeechSynthesizerDel
     }
 
     /// Asks for a line of text; nil if cancelled or empty.
-    func askText(_ title: String, placeholder: String, button: String = "Send") -> String? {
+    func askText(_ title: String, placeholder: String, button: String = robot.t("Send", "إرسال")) -> String? {
         NSApp.activate(ignoringOtherApps: true)
         let alert = NSAlert()
         alert.messageText = title
         alert.addButton(withTitle: button)
-        alert.addButton(withTitle: "Cancel")
+        alert.addButton(withTitle: robot.t("Cancel", "إلغاء"))
         let field = NSTextField(frame: NSRect(x: 0, y: 0, width: 300, height: 24))
         field.placeholderString = placeholder
         alert.accessoryView = field
@@ -1216,13 +1216,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate, AVSpeechSynthesizerDel
     }
 
     @objc func typeClicked() {
-        if let text = askText("Tell \(robot.name) something", placeholder: "Give me an idea for dinner"), !busy { send(text) }
+        if let text = askText(robot.t("Tell \(robot.name) something", "قل شيئاً لـ\(robot.name)"), placeholder: robot.t("Give me an idea for dinner", "أعطني فكرة للعشاء")), !busy { send(text) }
     }
 
     @objc func lookClicked() {
         guard !busy else { return }
-        let text = askText("What should \(robot.name) look at?", placeholder: "What do you think of my LinkedIn profile?",
-                           button: "Look") ?? "What do you see on my screen?"
+        let text = askText(robot.t("What should \(robot.name) look at?", "إلى ماذا ينظر \(robot.name)؟"), placeholder: robot.t("What do you think of my LinkedIn profile?", "ما رأيك في ملفي على LinkedIn؟"),
+                           button: robot.t("Look", "انظر")) ?? robot.t("What do you see on my screen?", "ماذا ترى على شاشتي؟")
         // Let the dialog close before the screenshot.
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) { self.send(text, lookAtScreen: true) }
     }
@@ -1240,7 +1240,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, AVSpeechSynthesizerDel
 
     @objc func newConversation() {
         brain.forget()
-        say("Fresh start! What's up?", speak: false)
+        say(robot.t("Fresh start! What's up?", "بداية جديدة! بماذا أساعدك؟"), speak: false)
     }
 
     @objc func quit() { NSApp.terminate(nil) }
@@ -1281,19 +1281,19 @@ func runConfirm() -> Never {
     let detail: String
     switch tool {
     case "Bash":
-        summary = (params["description"] as? String) ?? "Run a command"
+        summary = (params["description"] as? String) ?? robot.t("Run a command", "تشغيل أمر")
         detail = params["command"] as? String ?? ""
     case "Write":
-        summary = "Create or overwrite a file"
+        summary = robot.t("Create or overwrite a file", "إنشاء ملف أو استبداله")
         detail = params["file_path"] as? String ?? ""
     case "Edit", "MultiEdit":
-        summary = "Change a file"
+        summary = robot.t("Change a file", "تعديل ملف")
         detail = params["file_path"] as? String ?? ""
     case "WebFetch":
-        summary = "Open a web page"
+        summary = robot.t("Open a web page", "فتح صفحة ويب")
         detail = params["url"] as? String ?? ""
     case "WebSearch":
-        summary = "Search the web for"
+        summary = robot.t("Search the web for", "البحث في الإنترنت عن")
         detail = params["query"] as? String ?? ""
     default:
         summary = "Use \(tool)"
@@ -1306,8 +1306,8 @@ func runConfirm() -> Never {
     app.setActivationPolicy(.accessory)
     app.activate(ignoringOtherApps: true)
     let alert = NSAlert()
-    alert.messageText = "\(robot.name) wants to do something"
-    alert.informativeText = summary + (detail.count > 300 ? "\n\nThis one is long. Scroll to read all of it before allowing." : "")
+    alert.messageText = robot.t("\(robot.name) wants to do something", "\(robot.name) يريد أن يفعل شيئاً")
+    alert.informativeText = summary + (detail.count > 300 ? robot.t("\n\nThis one is long. Scroll to read all of it before allowing.", "\n\nهذا الأمر طويل. مرّر لقراءته كاملاً قبل السماح.") : "")
     // The full text, never cut short, so nothing can hide past the end of what's shown.
     let box = NSScrollView(frame: NSRect(x: 0, y: 0, width: 420, height: detail.count > 300 ? 220 : 90))
     box.hasVerticalScroller = true
@@ -1326,8 +1326,8 @@ func runConfirm() -> Never {
         drawRobot(at: CGPoint(x: 4, y: 6), scale: 4)
         return true
     }
-    alert.addButton(withTitle: "Deny")  // Default button, so a stray Return can't approve.
-    alert.addButton(withTitle: "Allow")
+    alert.addButton(withTitle: robot.t("Deny", "رفض"))  // Default button, so a stray Return can't approve.
+    alert.addButton(withTitle: robot.t("Allow", "سماح"))
     alert.window.level = .floating
     let timeout = Timer(timeInterval: 90, repeats: false) { _ in app.abortModal() }
     RunLoop.main.add(timeout, forMode: .modalPanel)

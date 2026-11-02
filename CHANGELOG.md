@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+**Zamil is Arabic throughout 🇸🇦**
+- Menus, dialogs, the Allow/Deny prompt, speech bubble messages and the Live notes window are all in Arabic
+- Runs with an Arabic system language, so macOS lays out its menus and dialogs right to left
+- Banner, animated hero and mood tiles redrawn with real Arabic pixel lettering (Kufi style), right-to-left bubbles and a mirrored banner
+
 ## 0.2.1 · 2026-11-02
 
 - Zamil's microphone permission prompt now names its own hotkey (Control-Option-Z) instead of Zolt's

@@ -58,11 +58,85 @@ private let glyphs: [Character: [String]] = [
     " ": [".....", ".....", ".....", ".....", ".....", ".....", "....."],
 ]
 
-private func textWidth(_ s: String, _ px: CGFloat) -> CGFloat { CGFloat(s.count) * 6 * px - px }
+// MARK: Arabic pixel text
+
+// The 5×7 font above only has Latin letters. Arabic needs joined, shaped letters, so it's drawn by
+// rendering the text small with a geometric Kufi font and antialiasing off, then drawing each pixel
+// as a big square, which gives real pixel-art Arabic with correct shaping and right-to-left order.
+
+private func isArabic(_ s: String) -> Bool {
+    s.unicodeScalars.contains { (0x0600...0x06FF).contains($0.value) || (0xFE70...0xFEFF).contains($0.value) }
+}
+
+/// A 1-bit bitmap of the text, trimmed to its inked rows: (width, height, bits row by row from the top).
+private func arabicBits(_ s: String, fontSize: CGFloat) -> (w: Int, h: Int, bits: [Bool]) {
+    let font = NSFont(name: "KufiStandardGK", size: fontSize) ?? NSFont(name: "GeezaPro-Bold", size: fontSize)!
+    let a = NSAttributedString(string: s, attributes: [.font: font, .foregroundColor: NSColor.black])
+    let size = a.size()
+    let w = Int(ceil(size.width)) + 2, h = Int(ceil(size.height)) + 2
+    guard let ctx = CGContext(data: nil, width: w, height: h, bitsPerComponent: 8, bytesPerRow: w * 4,
+                              space: CGColorSpaceCreateDeviceRGB(),
+                              bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue) else { return (0, 0, []) }
+    ctx.setShouldAntialias(false)
+    ctx.setAllowsFontSmoothing(false)
+    let previous = NSGraphicsContext.current
+    NSGraphicsContext.current = NSGraphicsContext(cgContext: ctx, flipped: false)
+    a.draw(at: NSPoint(x: 1, y: 1))
+    NSGraphicsContext.current = previous
+    let p = ctx.data!.assumingMemoryBound(to: UInt8.self)
+    // Bitmap rows run bottom to top; flip to top-down and drop empty rows.
+    var rows: [[Bool]] = []
+    for y in (0..<h).reversed() {
+        let row = (0..<w).map { p[((h - 1 - y) * w + $0) * 4 + 3] > 127 }
+        rows.append(row)
+    }
+    while let first = rows.first, !first.contains(true) { rows.removeFirst() }
+    while let last = rows.last, !last.contains(true) { rows.removeLast() }
+    return (w, rows.count, rows.flatMap { $0 })
+}
+
+/// Arabic glyphs are taller than the 5×7 Latin ones, so callers pass a smaller `px` for Arabic.
+private func arabicCell(_ px: CGFloat) -> CGFloat { max(1, px.rounded()) }
+
+/// Draws Arabic pixel text with its top-left at (x, y). `color` gets a row index scaled to 0...6.
+private func arabicText(_ s: String, x: CGFloat, y: CGFloat, fontSize: CGFloat = 14, cell: CGFloat,
+                        shadow: NSColor?, color: (Int) -> NSColor) {
+    let (w, h, bits) = arabicBits(s, fontSize: fontSize)
+    guard h > 0 else { return }
+    for pass in shadow == nil ? [1] : [0, 1] {
+        let off: CGFloat = pass == 0 ? max(2, (cell / 2).rounded()) : 0
+        for r in 0..<h {
+            (pass == 0 ? shadow! : color(r * 7 / h)).setFill()
+            for c in 0..<w where bits[r * w + c] {
+                NSRect(x: x + CGFloat(c) * cell + off, y: y + CGFloat(r) * cell + off, width: cell, height: cell).fill()
+            }
+        }
+    }
+}
+
+private func arabicSize(_ s: String, fontSize: CGFloat = 14, cell: CGFloat) -> CGSize {
+    let (w, h, _) = arabicBits(s, fontSize: fontSize)
+    return CGSize(width: CGFloat(w) * cell, height: CGFloat(h) * cell)
+}
+
+// MARK: Pixel text (either script)
+
+private func textWidth(_ s: String, _ px: CGFloat) -> CGFloat {
+    isArabic(s) ? arabicSize(s, cell: arabicCell(px)).width : CGFloat(s.count) * 6 * px - px
+}
+
+/// Height of one line of text at this scale.
+private func textHeight(_ s: String, _ px: CGFloat) -> CGFloat {
+    isArabic(s) ? arabicSize(s, cell: arabicCell(px)).height : 7 * px
+}
 
 /// Draws pixel text with its top-left at (x, y). `color` gets the glyph row, for stripey fills.
 private func pixelText(_ s: String, x: CGFloat, y: CGFloat, px: CGFloat, shadow: NSColor? = nil,
                        color: (Int) -> NSColor) {
+    if isArabic(s) {
+        arabicText(s, x: x, y: y, cell: arabicCell(px), shadow: shadow, color: color)
+        return
+    }
     for pass in shadow == nil ? [1] : [0, 1] {
         var cx = x
         for ch in s.uppercased() {
@@ -192,7 +266,8 @@ private func bubble(_ lines: [String], x: CGFloat, y: CGFloat, px: CGFloat, reve
     let u: CGFloat = 4
     let pad = px * 4
     let w = (lines.map { textWidth($0, px) }.max() ?? 0) + pad * 2
-    let h = CGFloat(lines.count) * px * 10 - px * 3 + pad * 2
+    let lineHeight = (lines.map { textHeight($0, px) }.max() ?? 7 * px) + px * 3
+    let h = CGFloat(lines.count) * lineHeight - px * 3 + pad * 2
     let ink = hex("#0C447C")
     ink.setFill()
     NSRect(x: x + u, y: y, width: w - 2 * u, height: h).fill()
@@ -205,7 +280,10 @@ private func bubble(_ lines: [String], x: CGFloat, y: CGFloat, px: CGFloat, reve
     for (i, line) in lines.enumerated() {
         let shown = String(line.prefix(max(0, left)))
         left -= line.count
-        pixelText(shown, x: x + pad, y: y + pad + CGFloat(i) * px * 10, px: px, color: ink)
+        guard !shown.isEmpty else { continue }
+        // Arabic is right-aligned, so it types out from the right like it's written.
+        let tx = isArabic(line) ? x + w - pad - textWidth(shown, px) : x + pad
+        pixelText(shown, x: tx, y: y + pad + CGFloat(i) * lineHeight, px: px, color: ink)
     }
 }
 
@@ -218,7 +296,15 @@ private struct Scene {
     let setup: (SpriteView) -> Void
 }
 
-private let scenes: [Scene] = [
+private let scenes: [Scene] = robot.arabic ? [
+    Scene(caption: "مرحبا!", lines: ["أهلاً، أنا زميل!", "اضغط عليّ وتكلّم"], color: cyan) { _ in },
+    Scene(caption: "أسمعك", lines: ["«ذكّرني أتصل", "بأمي الساعة 6»"], color: hex("#2BD67B")) { $0.mood = .listening },
+    Scene(caption: "أفكّر...", lines: ["لحظة وحدة،", "أشوف لك..."], color: hex("#B69CFF")) { $0.mood = .thinking },
+    Scene(caption: "أتكلّم", lines: ["تم! وأسألك دائماً", "قبل أي إجراء"], color: hex("#FFB000")) { $0.mood = .talking },
+    Scene(caption: "فكرة!", lines: ["وش رأيك باستراحة", "قهوة 5 دقايق؟"], color: hex("#FFE45C")) { $0.showIdea() },
+    Scene(caption: "اجتماع", lines: ["أدوّن الملاحظات", "وألتقط الأسئلة"], color: hex("#FF6B3D")) { $0.takingNotes = true },
+    Scene(caption: "قيلولة", lines: ["نايم لين", "تحتاجني"], color: hex("#7FA8FF")) { $0.asleep = true },
+] : [
     Scene(caption: "HELLO!", lines: ["HI, I'M \(robot.name.uppercased())!", "CLICK ME & TALK."], color: cyan) { _ in },
     Scene(caption: "LISTENING", lines: ["\"REMIND ME TO", "CALL MOM AT 6\""], color: hex("#2BD67B")) { $0.mood = .listening },
     Scene(caption: "THINKING", lines: ["HMM... ONE", "SECOND..."], color: hex("#B69CFF")) { $0.mood = .thinking },
@@ -240,13 +326,32 @@ private func sprite(_ scene: Scene, tick: Int) -> SpriteView {
 private func renderBanner(_ dir: URL) {
     let w: CGFloat = 1280, h: CGFloat = 640, horizon: CGFloat = 470
     let ctx = canvas(Int(w), Int(h))
+    let stripes = ["#FFE45C", "#FFE45C", "#FFC23D", "#FF9A3D", "#FF9A3D", "#FF6E5A", "#FF4F86"]
+    let k: CGFloat = 20
+
+    if robot.arabic {
+        // Mirrored for right-to-left: the character on the left, Arabic text right-aligned.
+        scenery(ctx, w: w, h: h, horizon: horizon, sun: (330, 230), phase: 0.35, twinkle: 0,
+                noStars: CGRect(x: 520, y: 60, width: 700, height: 380))
+        drawRobot(at: CGPoint(x: 330 - 7 * k, y: horizon - CGFloat(robot.grid.count) * k + 6), scale: k, eyes: .bright)
+        let right: CGFloat = 1196
+        let shade = hex("#3A0E5E")
+        func line(_ s: String, y: CGFloat, fontSize: CGFloat, cell: CGFloat, shadow: NSColor, color: @escaping (Int) -> NSColor) {
+            let size = arabicSize(s, fontSize: fontSize, cell: cell)
+            arabicText(s, x: right - size.width, y: y, fontSize: fontSize, cell: cell, shadow: shadow, color: color)
+        }
+        line("زميل", y: 70, fontSize: 30, cell: 7, shadow: pink) { hex(stripes[$0]) }
+        line("رفيقك البكسلي الصغير", y: 300, fontSize: 14, cell: 4, shadow: shade) { _ in .white }
+        line("لأجهزة ماك · يتكلّم العربية", y: 372, fontSize: 14, cell: 3, shadow: shade) { _ in cyan }
+        line("يسمع · يتكلّم · يدوّن · عنده أفكار", y: 420, fontSize: 14, cell: 3, shadow: shade) { _ in hex("#FFB000") }
+        writePNG(ctx, dir.appendingPathComponent("banner.png"))
+        return
+    }
+
     scenery(ctx, w: w, h: h, horizon: horizon, sun: (950, 230), phase: 0.35, twinkle: 0,
             noStars: CGRect(x: 70, y: 80, width: 780, height: 360))
-
-    let k: CGFloat = 20
     drawRobot(at: CGPoint(x: 950 - 7 * k, y: horizon - CGFloat(robot.grid.count) * k + 6), scale: k, eyes: .bright)
 
-    let stripes = ["#FFE45C", "#FFE45C", "#FFC23D", "#FF9A3D", "#FF9A3D", "#FF6E5A", "#FF4F86"]
     pixelText(robot.name.uppercased(), x: 84, y: 96, px: robot.name.count > 4 ? 22 : 26, shadow: pink) { hex(stripes[$0]) }
     pixelText("YOUR TINY PIXEL SIDEKICK", x: 88, y: 314, px: 4, color: .white, shadow: hex("#3A0E5E"))
     pixelText("FOR MACOS · RUNS ON CLAUDE CODE", x: 88, y: 364, px: 3, color: cyan, shadow: hex("#3A0E5E"))
@@ -267,7 +372,9 @@ private func renderHero(_ dir: URL) {
             phase = (phase + 0.08).truncatingRemainder(dividingBy: 1)
             scenery(ctx, w: w, h: h, horizon: horizon, sun: nil, phase: phase, twinkle: f)
             drawSprite(v, ctx, x: 10, y: horizon - CGFloat(18 + robot.grid.count * 6) * 3 + 2, k: 3)
-            pixelText(scene.caption, x: 470, y: 60, px: 6, color: scene.color, shadow: hex("#3A0E5E"))
+            let captionPx: CGFloat = robot.arabic ? 4 : 6
+            let captionX = robot.arabic ? 820 - textWidth(scene.caption, captionPx) : 470
+            pixelText(scene.caption, x: captionX, y: 50, px: captionPx, color: scene.color, shadow: hex("#3A0E5E"))
             bubble(scene.lines, x: 486, y: 150, px: 3, reveal: f * 2)
             frames.append(ctx.makeImage()!)
         }
@@ -302,8 +409,12 @@ private func renderTiles(_ dir: URL) {
                 NSRect(x: gx + 7, y: gy + 7, width: 2, height: 2).fill()
             } }
             drawSprite(v, ctx, x: 0, y: 4, k: 4.0 / 3.0)
-            let label = name.uppercased()
-            pixelText(label, x: ((w - textWidth(label, 3)) / 2).rounded(), y: 154, px: 3,
+            let arabicLabels = ["idle": "هادئ", "listening": "يسمع", "thinking": "يفكّر", "talking": "يتكلّم",
+                                "idea": "فكرة", "notes": "ملاحظات", "answers": "إجابات", "asleep": "نايم"]
+            let label = robot.arabic ? arabicLabels[name]! : name.uppercased()
+            let labelPx: CGFloat = robot.arabic ? 2 : 3
+            let labelY = robot.arabic ? h - textHeight(label, labelPx) - 8 : 154
+            pixelText(label, x: ((w - textWidth(label, labelPx)) / 2).rounded(), y: labelY, px: labelPx,
                       color: .white, shadow: NSColor.black.withAlphaComponent(0.35))
             frames.append(ctx.makeImage()!)
         }

@@ -12,7 +12,7 @@ final class LiveNotesPanel: NSObject, NSWindowDelegate {
     private let minHeight: CGFloat = 150
     private var panel: NSPanel!
     private let status = NSTextField(labelWithString: "")
-    private let button = NSButton(title: "Stop", target: nil, action: nil)
+    private let button = NSButton(title: robot.t("Stop", "إيقاف"), target: nil, action: nil)
     private let scroll = NSScrollView()
     private let text = NSTextView()
 
@@ -41,7 +41,7 @@ final class LiveNotesPanel: NSObject, NSWindowDelegate {
         panel = NSPanel(contentRect: NSRect(x: 0, y: 0, width: width, height: minHeight),
                         styleMask: [.titled, .closable, .resizable, .utilityWindow, .nonactivatingPanel],
                         backing: .buffered, defer: false)
-        panel.title = "Live notes"
+        panel.title = robot.t("Live notes", "ملاحظات مباشرة")
         panel.level = .floating
         panel.hidesOnDeactivate = false
         panel.isReleasedWhenClosed = false
@@ -93,7 +93,7 @@ final class LiveNotesPanel: NSObject, NSWindowDelegate {
         finished = false
         userSized = false
         startedAt = Date()
-        button.title = "Stop"
+        button.title = robot.t("Stop", "إيقاف")
 
         let screen = (NSScreen.screens.first { $0.frame.intersects(anchor) } ?? NSScreen.main)?.visibleFrame ?? anchor
         var x = anchor.minX - width - 8
@@ -114,7 +114,7 @@ final class LiveNotesPanel: NSObject, NSWindowDelegate {
         if committed.length > 0 { entry.append(NSAttributedString(string: "\n")) }
         entry.append(NSAttributedString(string: timeFormat.string(from: time) + "  ",
                                         attributes: [.font: timeFont, .foregroundColor: NSColor.tertiaryLabelColor]))
-        entry.append(NSAttributedString(string: who + "  ",
+        entry.append(NSAttributedString(string: speaker(who) + "  ",
                                         attributes: [.font: nameFont, .foregroundColor: speakerColors[who] ?? NSColor.labelColor]))
         entry.append(NSAttributedString(string: line, attributes: [.font: bodyFont, .foregroundColor: NSColor.labelColor]))
         committed.append(entry)
@@ -136,7 +136,7 @@ final class LiveNotesPanel: NSObject, NSWindowDelegate {
         indent.firstLineHeadIndent = 14
         indent.headIndent = 14
         indent.paragraphSpacing = 6
-        card.append(NSAttributedString(string: "💡 Suggested answer\n",
+        card.append(NSAttributedString(string: robot.t("💡 Suggested answer\n", "💡 إجابة مقترحة\n"),
                                        attributes: [.font: nameFont, .foregroundColor: amber, .paragraphStyle: indent]))
         card.append(NSAttributedString(string: answer,
                                        attributes: [.font: bodyFont, .foregroundColor: NSColor.labelColor,
@@ -144,6 +144,11 @@ final class LiveNotesPanel: NSObject, NSWindowDelegate {
         committed.append(card)
         thinkingAbout = nil
         render()
+    }
+
+    /// How a speaker is labelled on screen ("You" and "Others" stay the keys everywhere else).
+    private func speaker(_ who: String) -> String {
+        robot.t(who, who == "You" ? "أنت" : "الآخرون")
     }
 
     func partial(who: String, text line: String) {
@@ -159,7 +164,7 @@ final class LiveNotesPanel: NSObject, NSWindowDelegate {
         clockTimer?.invalidate()
         status.stringValue = message
         status.textColor = .secondaryLabelColor
-        button.title = "Open notes"
+        button.title = robot.t("Open notes", "افتح الملاحظات")
         render()
     }
 
@@ -173,7 +178,7 @@ final class LiveNotesPanel: NSObject, NSWindowDelegate {
         let elapsed = s >= 3600 ? String(format: "%d:%02d:%02d", s / 3600, s / 60 % 60, s % 60)
                                 : String(format: "%d:%02d", s / 60, s % 60)
         let dot = s % 2 == 0 ? "●" : "○"
-        status.stringValue = "\(dot) Taking notes · \(elapsed) · \(lineCount) lines"
+        status.stringValue = robot.t("\(dot) Taking notes · \(elapsed) · \(lineCount) lines", "\(dot) أدوّن · \(elapsed) · \(lineCount) سطر")
         status.textColor = hex("#E24B4A")
     }
 
@@ -183,18 +188,18 @@ final class LiveNotesPanel: NSObject, NSWindowDelegate {
         for who in ["Others", "You"] {
             guard let words = partials[who] else { continue }
             if shown.length > 0 { shown.append(NSAttributedString(string: "\n")) }
-            shown.append(NSAttributedString(string: "      " + who + "  ",
+            shown.append(NSAttributedString(string: "      " + speaker(who) + "  ",
                                             attributes: [.font: nameFont, .foregroundColor: (speakerColors[who] ?? .labelColor).withAlphaComponent(0.5)]))
             shown.append(NSAttributedString(string: words + " …",
                                             attributes: [.font: bodyFont, .foregroundColor: NSColor.secondaryLabelColor]))
         }
         if thinkingAbout != nil {
             if shown.length > 0 { shown.append(NSAttributedString(string: "\n")) }
-            shown.append(NSAttributedString(string: "      💡 Thinking of an answer…",
+            shown.append(NSAttributedString(string: robot.t("      💡 Thinking of an answer…", "      💡 أفكّر في إجابة…"),
                                             attributes: [.font: bodyFont, .foregroundColor: amber.withAlphaComponent(0.7)]))
         }
         if shown.length == 0 {
-            shown.append(NSAttributedString(string: "Listening… words will show up here as people talk.",
+            shown.append(NSAttributedString(string: robot.t("Listening… words will show up here as people talk.", "أستمع… ستظهر الكلمات هنا أثناء الحديث."),
                                             attributes: [.font: bodyFont, .foregroundColor: NSColor.tertiaryLabelColor]))
         }
         let style = NSMutableParagraphStyle()

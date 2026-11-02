@@ -295,7 +295,7 @@ final class NoteTaker: @unchecked Sendable {
                 try await others.start()
             } catch {
                 log("note taker transcriber start failed: \(error)")
-                onStatus?("I couldn't start my note-taking ears: \(error.localizedDescription)")
+                onStatus?(robot.t("I couldn't start my note-taking ears: \(error.localizedDescription)", "تعذّر تشغيل أذنيّ للتدوين: \(error.localizedDescription)"))
                 stopCapture()
                 active = false
                 return
@@ -309,7 +309,7 @@ final class NoteTaker: @unchecked Sendable {
                 }
             } catch {
                 log("system audio capture failed: \(error)")
-                onStatus?("I can only hear your side: \(error.localizedDescription) Allow \(robot.name) in Privacy & Security → Screen & System Audio Recording.")
+                onStatus?(robot.t("I can only hear your side: \(error.localizedDescription) Allow \(robot.name) in Privacy & Security → Screen & System Audio Recording.", "أسمع جانبك فقط: \(error.localizedDescription) اسمح لـ\(robot.name) في الخصوصية والأمان ← تسجيل الشاشة وصوت النظام."))
             }
             silenceTimer = Timer.scheduledTimer(withTimeInterval: 5, repeats: true) { [weak self] _ in self?.checkSilence() }
         }
@@ -319,7 +319,7 @@ final class NoteTaker: @unchecked Sendable {
         let input = micEngine.inputNode
         let format = input.outputFormat(forBus: 0)
         guard format.sampleRate > 0 else {
-            onStatus?("I can't reach the microphone, so I'll only note what the others say.")
+            onStatus?(robot.t("I can't reach the microphone, so I'll only note what the others say.", "لا أستطيع الوصول إلى الميكروفون، لذلك سأدوّن كلام الآخرين فقط."))
             return
         }
         input.removeTap(onBus: 0)
@@ -332,7 +332,7 @@ final class NoteTaker: @unchecked Sendable {
     private func checkSilence() {
         guard active, !warnedSilence, Date().timeIntervalSince(lastSound) > 25 else { return }
         warnedSilence = true
-        onStatus?("I'm not hearing any sound from the call yet. If others are talking, allow \(robot.name) in System Settings → Privacy & Security → Screen & System Audio Recording.")
+        onStatus?(robot.t("I'm not hearing any sound from the call yet. If others are talking, allow \(robot.name) in System Settings → Privacy & Security → Screen & System Audio Recording.", "لا أسمع أي صوت من المكالمة بعد. إذا كان الآخرون يتكلمون، اسمح لـ\(robot.name) في إعدادات النظام ← الخصوصية والأمان ← تسجيل الشاشة وصوت النظام."))
     }
 
     // Without headphones the mic also hears the call, so the same words arrive as both "You" and
@@ -415,7 +415,7 @@ final class NoteTaker: @unchecked Sendable {
             recentOthers = []
             guard !lines.isEmpty else {
                 writeFile(summary: "_No speech was heard._")
-                done("I didn't hear anything to take notes on.")
+                done(robot.t("I didn't hear anything to take notes on.", "لم أسمع شيئاً أدوّنه."))
                 return
             }
             writeFile(summary: "_Writing summary…_")
@@ -425,10 +425,10 @@ final class NoteTaker: @unchecked Sendable {
                 if let summary {
                     self.writeFile(summary: summary)
                     let tldr = summary.components(separatedBy: "\n").first { $0.hasPrefix("TL;DR") } ?? ""
-                    done("Notes saved! \(tldr) Click here to open them.")
+                    done(robot.t("Notes saved! \(tldr) Click here to open them.", "حفظت الملاحظات! \(tldr) اضغط هنا لفتحها."))
                 } else {
                     self.writeFile(summary: "_The summary couldn't be written; the full transcript is below._")
-                    done("I saved the transcript, but couldn't write the summary. Click here to open it.")
+                    done(robot.t("I saved the transcript, but couldn't write the summary. Click here to open it.", "حفظت النص، لكن تعذّرت كتابة الملخص. اضغط هنا لفتحه."))
                 }
             }
         }

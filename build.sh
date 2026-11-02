@@ -48,6 +48,12 @@ fi
 sed -e "s/Zolt/$NAME/g" -e "s/io\.github\.c0ldskin\.zolt/io.github.c0ldskin.$CHARACTER/" \
     -e "s/Control-Option-Space/Control-Option-$HOTKEY/" Info.plist > "$APP/Contents/Info.plist"
 /usr/libexec/PlistBuddy -c "Add :RobotCharacter string $CHARACTER" "$APP/Contents/Info.plist"
+if [[ $CHARACTER == zamil ]]; then
+    # Run in Arabic, so macOS lays out Zamil's menus and dialogs right to left.
+    /usr/libexec/PlistBuddy -c "Add :CFBundleDevelopmentRegion string ar" -c "Add :CFBundleLocalizations array" \
+        -c "Add :CFBundleLocalizations:0 string ar" "$APP/Contents/Info.plist"
+    mkdir -p "$APP/Contents/Resources/ar.lproj"
+fi
 
 # App icon, drawn from the character's own sprite.
 "$APP/Contents/MacOS/$NAME" --render-icon "build/$NAME.iconset"
