@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.3.1 · 2026-11-02
 
 - When Zolt and Zamil both run, only one of them offers to take notes for a meeting
 - New [SAFETY.md](SAFETY.md): what Zolt can and can't do, what leaves your Mac, and known limits
