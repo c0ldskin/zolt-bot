@@ -106,7 +106,15 @@ curl -fsSL https://claude.ai/install.sh | bash
 2. Open it. The first time, macOS says it can't check the app, because Zolt isn't signed with a paid Apple Developer certificate yet.
 3. Go to **System Settings → Privacy & Security**, scroll down, click **Open Anyway** next to Zolt, and confirm. You only do this once.
 
-**Option B: build it yourself** (no Xcode needed, just Apple's command-line tools)
+**Option B: Homebrew** 🍺
+
+```bash
+brew tap c0ldskin/tap
+brew trust c0ldskin/tap          # newer Homebrew asks you to trust third-party taps once
+brew install --cask zolt         # or: brew install --cask zamil
+```
+
+**Option C: build it yourself** (no Xcode needed, just Apple's command-line tools)
 
 ```bash
 xcode-select --install          # skip if you already have it

@@ -32,7 +32,9 @@ Everything is plain Swift compiled with `swiftc`, so there's no Xcode project. T
 
 ## Releasing
 
-Bump `CFBundleShortVersionString` in `Info.plist`, add a section to `CHANGELOG.md`, then push a tag like `v0.2.0`. GitHub Actions builds the app and attaches the zip to the release.
+Bump `CFBundleShortVersionString` in `Info.plist`, add a section to `CHANGELOG.md`, then push a tag like `v0.2.0`. GitHub Actions builds both apps and attaches the zips to the release.
+
+Then update the Homebrew casks in [c0ldskin/homebrew-tap](https://github.com/c0ldskin/homebrew-tap): set `version` and the new `sha256` of each zip (`shasum -a 256 Zolt-x.y.z.zip`).
 
 ## House rules
 
