@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.2.0 · 2026-11-02
 
 **Meet Zamil (زميل) 🇸🇦**, Zolt's Arabic-speaking sibling:
 - Its own character in a red-and-white shemagh and black agal, with a sand-coloured app icon
