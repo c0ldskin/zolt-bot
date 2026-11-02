@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.1 · 2026-11-02
+
+- Zamil's microphone permission prompt now names its own hotkey (Control-Option-Z) instead of Zolt's
+- The meeting audio permission prompt now mentions Zoom and Google Meet, not just Teams
+
 ## 0.2.0 · 2026-11-02
 
 **Meet Zamil (زميل) 🇸🇦**, Zolt's Arabic-speaking sibling:

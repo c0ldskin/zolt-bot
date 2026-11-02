@@ -22,8 +22,8 @@ while [[ $# -gt 0 ]]; do
     shift
 done
 case "$CHARACTER" in
-    zolt) NAME=Zolt ;;
-    zamil) NAME=Zamil ;;
+    zolt) NAME=Zolt HOTKEY=Space ;;
+    zamil) NAME=Zamil HOTKEY=Z ;;
     *) echo "Unknown character: $CHARACTER (use zolt or zamil)" >&2; exit 1 ;;
 esac
 
@@ -44,8 +44,9 @@ else
     swiftc -swift-version 5 -O Sources/*.swift -o "$APP/Contents/MacOS/$NAME" "${FRAMEWORKS[@]}"
 fi
 
-# Same Info.plist for both, with the character's name and ID swapped in.
-sed -e "s/Zolt/$NAME/g" -e "s/io\.github\.c0ldskin\.zolt/io.github.c0ldskin.$CHARACTER/" Info.plist > "$APP/Contents/Info.plist"
+# Same Info.plist for both, with the character's name, ID and hotkey swapped in.
+sed -e "s/Zolt/$NAME/g" -e "s/io\.github\.c0ldskin\.zolt/io.github.c0ldskin.$CHARACTER/" \
+    -e "s/Control-Option-Space/Control-Option-$HOTKEY/" Info.plist > "$APP/Contents/Info.plist"
 /usr/libexec/PlistBuddy -c "Add :RobotCharacter string $CHARACTER" "$APP/Contents/Info.plist"
 
 # App icon, drawn from the character's own sprite.
