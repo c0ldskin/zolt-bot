@@ -29,6 +29,14 @@
 
 ---
 
+> ### 🛡️ Safe by design: an agent that asks before it acts
+> - **Every action and web search waits for your Allow**, in a dialog that shows the full command. Deny is the default, and it denies by itself after 90 seconds.
+> - **Secrets are off-limits:** SSH keys, cloud credentials, Keychains, browser and password-manager data and `.env` files are blocked twice.
+> - **Meeting text can't trigger anything:** summaries and suggested answers run with every tool switched off.
+> - **Nothing starts on its own:** the mic listens only when you click, and meeting notes always ask first.
+>
+> What Zolt can and can't do, and why: **[SAFETY.md](SAFETY.md)**
+
 ## 👾 Meet Zolt
 
 **Zolt** (Z + volt ⚡) lives in the corner of your screen. Click it (or press **⌃⌥Space** from anywhere), say something, and it answers in a speech bubble that scrolls along as it talks. Its brain is [Claude Code](https://claude.com/claude-code), so it's actually smart, and it uses **your own** Claude account.
@@ -162,6 +170,9 @@ flowchart LR
 
 ## 🔒 Safety & privacy
 
+The full picture, including known limits, is in **[SAFETY.md](SAFETY.md)**.
+
+
 - 🎙️ The mic is on **only** while Zolt is listening (you clicked it) or taking notes (you said yes).
 - ✋ Every action on your Mac needs an explicit **Allow**, and so does every web search. The dialog always shows the full command, however long it is.
 - 📖 Zolt can read files in your home folder without asking (that's how it answers questions about them), **except** places that hold secrets: `.ssh`, `.aws`, `.gnupg`, Keychains, browser and password-manager data, Mail, Messages, `.env` files and similar. Those are blocked twice: by Claude Code's own deny rules and by Zolt's approval hook.
@@ -268,6 +279,8 @@ PRs welcome, especially new animations, skins and moods. See [CONTRIBUTING.md](C
 <div align="center">
 <br>
 <img src="art/zolt.png" width="72" alt="Zolt">
+<br>
+<sub>Built by <a href="https://github.com/c0ldskin">Zeeshan Mehdi</a>, CTO by day, agent tinkerer by night. Also see <a href="https://c0ldskin.github.io/fitrah/">Fitrah (فطرة)</a>, research on agents that are born with trust.</sub>
 <br>
 <sub>Made with tiny pixels and a lot of beep-boop. Not affiliated with Anthropic, Apple or Microsoft.</sub>
 </div>

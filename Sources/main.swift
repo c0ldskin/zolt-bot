@@ -1100,6 +1100,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, AVSpeechSynthesizerDel
 
     func askToTakeNotes(_ app: MeetingApp) {
         guard !notes.active else { return }
+        guard claimMeetingOffer() else {
+            log("\(app.name) meeting: the other character is offering notes")
+            return
+        }
         noteActivity()
         NSApp.activate(ignoringOtherApps: true)
         let alert = NSAlert()

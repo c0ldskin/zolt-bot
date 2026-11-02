@@ -213,6 +213,26 @@ final class MeetingWatcher {
     }
 }
 
+/// Zolt and Zamil can run side by side and notice the same call. The first one to claim the offer
+/// asks "Take notes?"; the other stays quiet. A claim lasts two minutes.
+func claimMeetingOffer() -> Bool {
+    let fm = FileManager.default
+    let dir = URL(fileURLWithPath: NSHomeDirectory()).appendingPathComponent("Library/Caches")
+    try? fm.createDirectory(at: dir, withIntermediateDirectories: true)
+    let path = dir.appendingPathComponent("io.github.c0ldskin.meeting-offer.lock").path
+    if let made = (try? fm.attributesOfItem(atPath: path))?[.modificationDate] as? Date,
+       Date().timeIntervalSince(made) < 120 {
+        return (try? String(contentsOfFile: path, encoding: .utf8)) == robot.key
+    }
+    try? fm.removeItem(atPath: path)
+    // O_EXCL makes the claim atomic: if both apps get here at once, only one creates the file.
+    let fd = open(path, O_CREAT | O_EXCL | O_WRONLY, 0o600)
+    guard fd >= 0 else { return false }
+    _ = robot.key.withCString { write(fd, $0, strlen($0)) }
+    close(fd)
+    return true
+}
+
 // MARK: - Questions
 
 /// A cheap first check for whether a transcript line asks something. Claude makes the real call
