@@ -1,5 +1,19 @@
 # Changelog
 
+## Unreleased
+
+**Meet Zamil (زميل) 🇸🇦**, Zolt's Arabic-speaking sibling:
+- Its own character in a red-and-white shemagh and black agal, with a sand-coloured app icon
+- Understands spoken Arabic (Saudi) and replies in Arabic
+- Arabic voice (Majed), plus an Arabic greeting and messages
+- Right-to-left speech bubble and Live notes
+- Its own hotkey (⌃⌥Z), folder (`~/.zamil`) and meeting notes folder, so it can run alongside Zolt
+- Built from the same code: `./build.sh --character zamil`
+- Meeting notes stay in English for now (no Arabic meeting transcription on macOS yet)
+
+**Also:**
+- Both apps log whether their hotkey registered, to help when two apps want the same keys
+
 ## 0.1.0 · 2026-11-02
 
 The first public release. ⚡

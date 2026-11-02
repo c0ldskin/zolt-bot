@@ -4,7 +4,7 @@ import ScreenCaptureKit
 /// One-off screenshots so Zolt can answer questions about what's on screen. Nothing is captured
 /// unless the user asks; Zolt's own windows are left out of the picture.
 enum Screen {
-    static let file = URL(fileURLWithPath: NSHomeDirectory()).appendingPathComponent(".zolt/screen.png")
+    static let file = robot.folder.appendingPathComponent("screen.png")
 
     /// Whether a request sounds like it's about what's on screen.
     static func wantsLook(_ text: String) -> Bool {
@@ -40,18 +40,18 @@ enum Screen {
                 await MainActor.run { done(.success(file)) }
             } catch {
                 log("screenshot failed: \(error)")
-                if (error as NSError).domain != "Zolt" {
+                if (error as NSError).domain != "\(robot.name)" {
                     // Asks macOS to show its permission prompt (or point at the setting) for this build.
                     await MainActor.run { _ = CGRequestScreenCaptureAccess() }
                 }
-                let friendly = (error as NSError).domain == "Zolt" ? error
-                    : message("macOS blocked me from seeing your screen. In System Settings → Privacy & Security → Screen & System Audio Recording, remove Zolt with the − button, add it back with +, then quit and reopen me.")
+                let friendly = (error as NSError).domain == "\(robot.name)" ? error
+                    : message("macOS blocked me from seeing your screen. In System Settings → Privacy & Security → Screen & System Audio Recording, remove \(robot.name) with the − button, add it back with +, then quit and reopen me.")
                 await MainActor.run { done(.failure(friendly)) }
             }
         }
     }
 
     private static func message(_ text: String) -> NSError {
-        NSError(domain: "Zolt", code: 0, userInfo: [NSLocalizedDescriptionKey: text])
+        NSError(domain: "\(robot.name)", code: 0, userInfo: [NSLocalizedDescriptionKey: text])
     }
 }

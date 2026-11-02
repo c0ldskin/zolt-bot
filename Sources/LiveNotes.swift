@@ -200,6 +200,7 @@ final class LiveNotesPanel: NSObject, NSWindowDelegate {
         let style = NSMutableParagraphStyle()
         style.paragraphSpacing = 6
         style.lineHeightMultiple = 1.1
+        style.baseWritingDirection = .natural // Arabic lines run right to left.
         shown.addAttribute(.paragraphStyle, value: style, range: NSRange(location: 0, length: shown.length))
         text.textStorage?.setAttributedString(shown)
 

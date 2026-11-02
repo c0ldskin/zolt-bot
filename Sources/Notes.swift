@@ -113,14 +113,14 @@ final class SystemAudioCapture {
 
         guard var asbd = readValue(tapID, kAudioTapPropertyFormat, AudioStreamBasicDescription()),
               let format = AVAudioFormat(streamDescription: &asbd) else {
-            throw NSError(domain: "Zolt", code: 1, userInfo: [NSLocalizedDescriptionKey: "Couldn't read the tap's audio format."])
+            throw NSError(domain: "\(robot.name)", code: 1, userInfo: [NSLocalizedDescriptionKey: "Couldn't read the tap's audio format."])
         }
 
         let outputDevice = readValue(AudioObjectID(kAudioObjectSystemObject),
                                      kAudioHardwarePropertyDefaultSystemOutputDevice, AudioObjectID(0)) ?? 0
         let outputUID = readString(outputDevice, kAudioDevicePropertyDeviceUID) ?? ""
         let aggregate: [String: Any] = [
-            kAudioAggregateDeviceNameKey: "Zolt Notes",
+            kAudioAggregateDeviceNameKey: "\(robot.name) Notes",
             kAudioAggregateDeviceUIDKey: UUID().uuidString,
             kAudioAggregateDeviceMainSubDeviceKey: outputUID,
             kAudioAggregateDeviceIsPrivateKey: true,
@@ -155,7 +155,7 @@ final class SystemAudioCapture {
 
     private func check(_ status: OSStatus, _ what: String) throws {
         guard status == noErr else {
-            throw NSError(domain: "Zolt", code: Int(status), userInfo: [NSLocalizedDescriptionKey: "Couldn't \(what) (\(status))."])
+            throw NSError(domain: "\(robot.name)", code: Int(status), userInfo: [NSLocalizedDescriptionKey: "Couldn't \(what) (\(status))."])
         }
     }
 }
@@ -237,7 +237,7 @@ func looksLikeQuestion(_ text: String) -> Bool {
 // Used from the main thread, apart from the audio callbacks that only feed the transcribers
 // and note the time of the last sound.
 final class NoteTaker: @unchecked Sendable {
-    static let folder = URL(fileURLWithPath: NSHomeDirectory()).appendingPathComponent("Zolt Meeting Notes")
+    static let folder = robot.notesFolder
 
     var onStatus: ((String) -> Void)?
     /// A finalized line (speaker, text, time), for the live notes window.
@@ -309,7 +309,7 @@ final class NoteTaker: @unchecked Sendable {
                 }
             } catch {
                 log("system audio capture failed: \(error)")
-                onStatus?("I can only hear your side: \(error.localizedDescription) Allow Zolt in Privacy & Security → Screen & System Audio Recording.")
+                onStatus?("I can only hear your side: \(error.localizedDescription) Allow \(robot.name) in Privacy & Security → Screen & System Audio Recording.")
             }
             silenceTimer = Timer.scheduledTimer(withTimeInterval: 5, repeats: true) { [weak self] _ in self?.checkSilence() }
         }
@@ -332,7 +332,7 @@ final class NoteTaker: @unchecked Sendable {
     private func checkSilence() {
         guard active, !warnedSilence, Date().timeIntervalSince(lastSound) > 25 else { return }
         warnedSilence = true
-        onStatus?("I'm not hearing any sound from the call yet. If others are talking, allow Zolt in System Settings → Privacy & Security → Screen & System Audio Recording.")
+        onStatus?("I'm not hearing any sound from the call yet. If others are talking, allow \(robot.name) in System Settings → Privacy & Security → Screen & System Audio Recording.")
     }
 
     // Without headphones the mic also hears the call, so the same words arrive as both "You" and

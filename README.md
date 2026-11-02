@@ -42,6 +42,30 @@
 </table>
 </div>
 
+## 🇸🇦 Meet Zamil (زميل)
+
+<div align="center">
+<img src="art/zamil/hero.gif" alt="Zamil, Zolt's Arabic-speaking sibling, in a red-and-white shemagh" width="100%">
+</div>
+
+**Zamil** means *companion* in Arabic, and it's Zolt's Arabic-speaking sibling. It wears a red-and-white shemagh with a black agal, **understands spoken Arabic**, and **replies in Arabic** in a warm, natural tone (or in English if you write to it in English). Its speech bubble runs right to left.
+
+- Same app and features as Zolt, with its own name, icon, voice (Majed) and hotkey: **⌃⌥Z**
+- Runs happily **side by side** with Zolt; each keeps its own settings in `~/.zamil`
+- Build it with `./build.sh --character zamil --run --shortcut`
+- For now, meeting notes are in English, because macOS doesn't offer Arabic meeting transcription yet
+
+<div align="center">
+<table>
+  <tr>
+    <td align="center"><img src="art/zamil/mood-idle.gif" width="200" alt="Zamil idle"></td>
+    <td align="center"><img src="art/zamil/mood-listening.gif" width="200" alt="Zamil listening"></td>
+    <td align="center"><img src="art/zamil/mood-idea.gif" width="200" alt="Zamil with an idea"></td>
+    <td align="center"><img src="art/zamil/mood-notes.gif" width="200" alt="Zamil taking notes"></td>
+  </tr>
+</table>
+</div>
+
 ## ✨ What it can do
 
 | | |
@@ -136,10 +160,10 @@ flowchart LR
 
 ## 🎨 Make it yours
 
-Zolt's whole face is a little grid of letters in [`Sources/main.swift`](Sources/main.swift):
+Every character's face is a little grid of letters in [`Sources/Robot.swift`](Sources/Robot.swift). Here's Zolt's:
 
 ```swift
-let zoltGrid = [
+grid: [
     "..o........o..",
     "..oa......ao..",
     "..oaooooooao..",
@@ -153,10 +177,10 @@ let zoltGrid = [
     "..obbbbbbbbo..",
     "...obbbbbbo...",
     "....oooooo....",
-]
+],
 ```
 
-Change the letters or the `palette` colors, run `./build.sh`, and you've got your own bot. Regenerate the README art from your new design with:
+Change the letters or the `palette` colors, run `./build.sh`, and you've got your own bot. Or add a whole new character next to Zolt and Zamil, with its own language and hotkey. Regenerate the README art from your new design with:
 
 ```bash
 build/Zolt.app/Contents/MacOS/Zolt --render-art art

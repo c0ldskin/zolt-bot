@@ -9,13 +9,15 @@ Thanks for wanting to help Zolt grow!
 ./build.sh --run        # same, then launch
 ./build.sh --no-install # just build into build/Zolt.app
 ./build.sh --release    # Apple Silicon + Intel build, zipped into build/ (how releases are made)
+./build.sh --character zamil   # build Zamil, the Arabic-speaking sibling, instead of Zolt
 ```
 
 Everything is plain Swift compiled with `swiftc`, so there's no Xcode project. The sources are in `Sources/`:
 
 | File | What's inside |
 |---|---|
-| `main.swift` | Sprite and animations, speech bubble, voice input, Claude bridge, menu, app |
+| `Robot.swift` | The characters (Zolt and Zamil): sprite grid, colors, language, hotkey, folder |
+| `main.swift` | Animations, speech bubble, voice input, Claude bridge, menu, app |
 | `Notes.swift` | Meeting detection, Core Audio process tap, the note taker |
 | `Transcriber.swift` | Live transcription with macOS 26 `SpeechAnalyzer` |
 | `LiveNotes.swift` | The growing live transcript window |
@@ -25,7 +27,7 @@ Everything is plain Swift compiled with `swiftc`, so there's no Xcode project. T
 ## Ideas for a first PR
 
 - A new mood or animation: add it to `SpriteView.draw`, then add a tile in `Art.swift`.
-- A new skin: another pixel grid plus palette.
+- A new character: add a `Robot` in `Robot.swift` (copy Zamil as a template) and a case in `build.sh`.
 - The dance animation on the roadmap.
 
 ## Releasing

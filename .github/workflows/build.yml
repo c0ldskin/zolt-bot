@@ -8,14 +8,20 @@ on:
 jobs:
   build:
     runs-on: macos-26
+    strategy:
+      matrix:
+        character: [zolt, zamil]
     steps:
       - uses: actions/checkout@v4
       - name: Show toolchain
         run: swiftc --version && sw_vers
-      - name: Build Zolt.app
-        run: ./build.sh --no-install
+      - name: Build the app
+        run: ./build.sh --character ${{ matrix.character }} --no-install
       - name: Check the app bundle
         run: |
-          test -x build/Zolt.app/Contents/MacOS/Zolt
-          test -f build/Zolt.app/Contents/Resources/Zolt.icns
-          plutil -lint build/Zolt.app/Contents/Info.plist
+          NAME=$(ls -d build/*.app | head -1)
+          EXE=$(/usr/libexec/PlistBuddy -c "Print CFBundleExecutable" "$NAME/Contents/Info.plist")
+          test -x "$NAME/Contents/MacOS/$EXE"
+          test -f "$NAME/Contents/Resources/$EXE.icns"
+          test "$(/usr/libexec/PlistBuddy -c "Print RobotCharacter" "$NAME/Contents/Info.plist")" = "${{ matrix.character }}"
+          plutil -lint "$NAME/Contents/Info.plist"

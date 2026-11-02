@@ -219,7 +219,7 @@ private struct Scene {
 }
 
 private let scenes: [Scene] = [
-    Scene(caption: "HELLO!", lines: ["HI, I'M ZOLT!", "CLICK ME & TALK."], color: cyan) { _ in },
+    Scene(caption: "HELLO!", lines: ["HI, I'M \(robot.name.uppercased())!", "CLICK ME & TALK."], color: cyan) { _ in },
     Scene(caption: "LISTENING", lines: ["\"REMIND ME TO", "CALL MOM AT 6\""], color: hex("#2BD67B")) { $0.mood = .listening },
     Scene(caption: "THINKING", lines: ["HMM... ONE", "SECOND..."], color: hex("#B69CFF")) { $0.mood = .thinking },
     Scene(caption: "TALKING", lines: ["DONE! I'LL ASK", "BEFORE I ACT."], color: hex("#FFB000")) { $0.mood = .talking },
@@ -244,10 +244,10 @@ private func renderBanner(_ dir: URL) {
             noStars: CGRect(x: 70, y: 80, width: 780, height: 360))
 
     let k: CGFloat = 20
-    drawZolt(at: CGPoint(x: 950 - 7 * k, y: horizon - 13 * k + 6), scale: k, eyes: .bright)
+    drawRobot(at: CGPoint(x: 950 - 7 * k, y: horizon - CGFloat(robot.grid.count) * k + 6), scale: k, eyes: .bright)
 
     let stripes = ["#FFE45C", "#FFE45C", "#FFC23D", "#FF9A3D", "#FF9A3D", "#FF6E5A", "#FF4F86"]
-    pixelText("ZOLT", x: 84, y: 96, px: 26, shadow: pink) { hex(stripes[$0]) }
+    pixelText(robot.name.uppercased(), x: 84, y: 96, px: robot.name.count > 4 ? 22 : 26, shadow: pink) { hex(stripes[$0]) }
     pixelText("YOUR TINY PIXEL SIDEKICK", x: 88, y: 314, px: 4, color: .white, shadow: hex("#3A0E5E"))
     pixelText("FOR MACOS · RUNS ON CLAUDE CODE", x: 88, y: 364, px: 3, color: cyan, shadow: hex("#3A0E5E"))
     pixelText("TALKS · LISTENS · TAKES NOTES · HAS IDEAS", x: 88, y: 404, px: 3, color: hex("#FFB000"), shadow: hex("#3A0E5E"))
@@ -266,7 +266,7 @@ private func renderHero(_ dir: URL) {
             let ctx = canvas(Int(w), Int(h))
             phase = (phase + 0.08).truncatingRemainder(dividingBy: 1)
             scenery(ctx, w: w, h: h, horizon: horizon, sun: nil, phase: phase, twinkle: f)
-            drawSprite(v, ctx, x: 10, y: horizon - 290, k: 3)
+            drawSprite(v, ctx, x: 10, y: horizon - CGFloat(18 + robot.grid.count * 6) * 3 + 2, k: 3)
             pixelText(scene.caption, x: 470, y: 60, px: 6, color: scene.color, shadow: hex("#3A0E5E"))
             bubble(scene.lines, x: 486, y: 150, px: 3, reveal: f * 2)
             frames.append(ctx.makeImage()!)
@@ -313,9 +313,9 @@ private func renderTiles(_ dir: URL) {
 
 /// A big still of Zolt for the README footer.
 private func renderSprite(_ dir: URL) {
-    let ctx = canvas(14 * 16, 13 * 16)
-    drawZolt(at: .zero, scale: 16)
-    writePNG(ctx, dir.appendingPathComponent("zolt.png"))
+    let ctx = canvas(14 * 16, robot.grid.count * 16)
+    drawRobot(at: .zero, scale: 16)
+    writePNG(ctx, dir.appendingPathComponent("\(robot.key).png"))
 }
 
 func runRenderArt(_ path: String) -> Never {
