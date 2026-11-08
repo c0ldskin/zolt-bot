@@ -25,3 +25,31 @@ jobs:
           test -f "$NAME/Contents/Resources/$EXE.icns"
           test "$(/usr/libexec/PlistBuddy -c "Print RobotCharacter" "$NAME/Contents/Info.plist")" = "${{ matrix.character }}"
           plutil -lint "$NAME/Contents/Info.plist"
+      - name: Check the call briefing
+        run: |
+          EXE=$(ls -d build/*.app/Contents/MacOS/* | head -1)
+          T=$(mktemp -d)
+          filler="This document is sample material for testing how the briefing reader handles ordinary sentences in a longer passage of text."
+          echo "$filler The notes say the zanzibar tier costs forty dirhams per seat." > "$T/notes.txt"
+          echo "$filler The word file says the kilimanjaro rollout starts in March." > "$T/w.txt"
+          textutil -convert docx "$T/w.txt" -output "$T/word.docx"
+          echo "$filler The pdf says the okavango warranty lasts three years." > "$T/p.txt"
+          cupsfilter "$T/p.txt" > "$T/file.pdf" 2>/dev/null
+          mkdir -p "$T/deck/ppt/slides" "$T/deck/ppt/notesSlides"
+          echo "<p:sld><a:p><a:r><a:t>$filler</a:t></a:r><a:r><a:t>The marrakesh office has twelve &amp; more desks.</a:t></a:r></a:p></p:sld>" > "$T/deck/ppt/slides/slide1.xml"
+          echo "<p:notes><a:p><a:r><a:t>$filler The speaker notes mention the timbuktu discount.</a:t></a:r></a:p></p:notes>" > "$T/deck/ppt/notesSlides/notesSlide1.xml"
+          (cd "$T/deck" && zip -qr ../deck.pptx .)
+          ALL="$T/notes.txt $T/word.docx $T/file.pdf $T/deck.pptx"
+          check() {
+            out=$("$EXE" --briefing-check "$1" $ALL)
+            echo "$out"
+            echo "$out" | grep -q "$2"
+            echo "$out" | grep -A1 '^\[' | head -2 | grep -q "$3"
+          }
+          check "How much is the zanzibar tier?" "forty dirhams" "zanzibar"
+          check "When does the kilimanjaro rollout start?" "starts in March" "kilimanjaro"
+          check "How long is the okavango warranty?" "three years" "okavango"
+          check "How many desks in the marrakesh office?" "twelve & more" "marrakesh"
+          check "Is there a timbuktu discount?" "Speaker notes" "timbuktu"
+          "$EXE" --briefing-check "Tell me about penguins please" $ALL | grep -q "no passages"
+          "$EXE" --briefing-check "Is this domain for use in illustrative examples?" https://example.com | grep -qi "illustrative"

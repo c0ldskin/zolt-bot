@@ -29,7 +29,7 @@ Zolt and Zamil are AI agents that can act on your Mac. This page says exactly wh
 - Shell commands that name one of these locations are refused by the approval check too.
 - Code: `secretFolders` and `isSecretPath` in [`Sources/main.swift`](Sources/main.swift).
 
-**3. Meeting text can't trigger tools.** Other people's words reach Claude when Zolt writes a summary or suggests an answer. Those two requests run with **every tool turned off**, built-in and MCP alike (`--tools ""` and `--strict-mcp-config`), so nothing said on a call can make Zolt read, run or send anything.
+**3. Meeting text can't trigger tools.** Other people's words reach Claude when Zolt writes a summary or suggests an answer. Those two requests run with **every tool turned off**, built-in and MCP alike (`--tools ""` and `--strict-mcp-config`), so nothing said on a call can make Zolt read, run or send anything. The same goes for your call briefing: its documents and web pages reach Claude as text only, in requests with no tools.
 
 **4. Untrusted text is information, not instructions.** Zolt's instructions to Claude say so explicitly for web pages, files and screenshots. This helps, but it's a request to the model, not a guarantee, so checks 1 and 2 are what actually protect you.
 
@@ -45,10 +45,11 @@ Zolt and Zamil are AI agents that can act on your Mac. This page says exactly wh
 | Your voice commands | Apple's speech recognition (may be processed on Apple's servers) | To turn speech into text |
 | What you say or type, screenshots you ask about, files Zolt reads to answer you | Anthropic, through **your own** Claude Code login | So Claude can answer |
 | Meeting transcripts | Anthropic, through your Claude Code login | For summaries and suggested answers |
+| Passages from your call briefing that match a question | Anthropic, through your Claude Code login | For suggested answers |
 | Meeting **audio** | Nowhere: it's transcribed on your Mac | |
 
 **Stored on your Mac only:**
-- `~/.zolt` or `~/.zamil`: conversation id, settings, the last screenshot, and a small log of what Zolt did (never what anyone said, capped at 512 KB)
+- `~/.zolt` or `~/.zamil`: conversation id, settings, the last screenshot, the text of your call briefing, and a small log of what Zolt did (never what anyone said, capped at 512 KB)
 - `~/Zolt Meeting Notes` or `~/Zamil Meeting Notes`: your notes, as Markdown
 
 ## Known limits
@@ -58,7 +59,8 @@ Being honest about these is part of the design:
 - **You are the last line of defence.** If you allow a harmful command, it runs. Read the dialog. If approvals start to feel automatic, that's a signal to slow down.
 - **Reading is broad.** Outside the blocked list, Zolt can read your home folder without asking. Don't keep secrets in unusual places.
 - **The shell check looks for names.** A command that disguises a secret path (a wildcard or a variable, say) isn't refused automatically. It still stops at the Allow dialog, so read the full command.
-- **Prompt injection is reduced, not solved.** A web page or file could try to steer Claude. It still can't act without your Allow or read blocked secrets, but it could produce a misleading answer.
+- **Prompt injection is reduced, not solved.** A web page or file could try to steer Claude. It still can't act without your Allow or read blocked secrets, but it could produce a misleading answer. That includes anything you add to a call briefing, so only add sources you trust.
+- **Suggested answers can be wrong.** A briefing is searched by matching words, so a question phrased very differently can miss the right passage. Check before you repeat a figure.
 - **The Live notes window is a normal window.** If you share your whole screen, others can see suggested answers. Share a single window instead.
 - **Builds aren't notarized yet.** macOS asks you to click "Open Anyway" once. Building from source avoids this.
 - **Permissions reset on every local rebuild,** because each ad-hoc signature is new. That's macOS protecting you, not a bug.
