@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+**Prepare for a call**
+- Add PDFs, PowerPoints (with speaker notes), Word files, text files, folders or web pages from the menu before a call
+- Suggested answers use the passages that match each question and name their source
+- Passages are found on your Mac, and requests still run with every tool turned off
+
 ## 0.3.2 · 2026-11-08
 
 - Shell commands that name a secret location (`.ssh`, `.aws`, Keychains, `.env` files and the rest) are now refused outright instead of going to the Allow dialog

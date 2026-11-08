@@ -92,6 +92,7 @@
 | 👀 **Looks at your screen** | *"Look at my LinkedIn, what would you improve?"* One screenshot, only when you ask, with Zolt's own windows left out. |
 | 📝 **Meeting notes** | Notices a **Teams, Zoom or Google Meet** call and *asks* before taking notes. You get a live transcript window that grows with the call, then a TL;DR, decisions and action items. |
 | 💡 **Suggested answers** | Optional: when someone on the call asks a question, a suggested answer quietly appears in your notes window. It never speaks into the call. |
+| 📚 **Prepare for a call** | Feed it PDFs, PowerPoints, Word files, text or web pages before the call, and suggested answers come from them, with the source named. |
 | 🌙 **Has a life** | Pops in with ideas every 45 min, naps when you're away, wobbles when you drag it. |
 
 ## 🚀 Quick start
@@ -182,7 +183,7 @@ The full picture, including known limits, is in **[SAFETY.md](SAFETY.md)**.
 - 🌐 **What leaves your Mac:**
   - **Voice commands** go through Apple's speech recognition, which may process them on Apple's servers.
   - **Meeting audio** is transcribed on your Mac and never sent anywhere as audio.
-  - **Text sent to Claude** through your own Claude Code login: what you say or type to Zolt, screenshots you ask about, files Zolt reads to answer you, and meeting transcripts (for summaries and suggested answers).
+  - **Text sent to Claude** through your own Claude Code login: what you say or type to Zolt, screenshots you ask about, files Zolt reads to answer you, meeting transcripts (for summaries and suggested answers), and the passages of your briefing that match a question.
 - 🗂️ Everything is stored locally: `~/.zolt` (conversation id and a small troubleshooting log that records what Zolt did, never what anyone said) and `~/Zolt Meeting Notes` (Markdown notes).
 
 ## 🎨 Make it yours
