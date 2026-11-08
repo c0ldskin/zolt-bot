@@ -51,5 +51,5 @@ jobs:
           check "How long is the okavango warranty?" "three years" "okavango"
           check "How many desks in the marrakesh office?" "twelve & more" "marrakesh"
           check "Is there a timbuktu discount?" "Speaker notes" "timbuktu"
-          "$EXE" --briefing-check "Tell me about penguins please" $ALL | grep -q "no passages"
-          "$EXE" --briefing-check "Is this domain for use in illustrative examples?" https://example.com | grep -qi "illustrative"
+          out=$("$EXE" --briefing-check "Tell me about penguins please" $ALL); echo "$out"; echo "$out" | grep -q "no passages"
+          out=$("$EXE" --briefing-check "What is this domain for?" https://example.com); echo "$out"; echo "$out" | grep -q "^ok(name"; echo "$out" | grep -qi "domain"
