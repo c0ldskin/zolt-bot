@@ -31,7 +31,7 @@
 
 > ### 🛡️ Safe by design: an agent that asks before it acts
 > - **Every action and web search waits for your Allow**, in a dialog that shows the full command. Deny is the default, and it denies by itself after 90 seconds.
-> - **Secrets are off-limits:** SSH keys, cloud credentials, Keychains, browser and password-manager data and `.env` files are blocked twice.
+> - **Secrets are off-limits:** file reads of SSH keys, cloud credentials, Keychains, browser and password-manager data and `.env` files are refused, and so is any shell command that names them.
 > - **Meeting text can't trigger anything:** summaries and suggested answers run with every tool switched off.
 > - **Nothing starts on its own:** the mic listens only when you click, and meeting notes always ask first.
 >
@@ -96,7 +96,7 @@
 
 ## 🚀 Quick start
 
-**You need:** macOS 26 (Tahoe) or later (Apple Silicon or Intel) and a Claude account.
+**You need:** macOS 26 (Tahoe) or later (Apple Silicon or Intel) and a paid Claude account (Pro, Max, Ultra, Team, Enterprise or Console). The free Claude plan doesn't include Claude Code.
 
 ### Step 1: give Zolt a brain
 
@@ -175,7 +175,7 @@ The full picture, including known limits, is in **[SAFETY.md](SAFETY.md)**.
 
 - 🎙️ The mic is on **only** while Zolt is listening (you clicked it) or taking notes (you said yes).
 - ✋ Every action on your Mac needs an explicit **Allow**, and so does every web search. The dialog always shows the full command, however long it is.
-- 📖 Zolt can read files in your home folder without asking (that's how it answers questions about them), **except** places that hold secrets: `.ssh`, `.aws`, `.gnupg`, Keychains, browser and password-manager data, Mail, Messages, `.env` files and similar. Those are blocked twice: by Claude Code's own deny rules and by Zolt's approval hook.
+- 📖 Zolt can read files in your home folder without asking (that's how it answers questions about them), **except** places that hold secrets: `.ssh`, `.aws`, `.gnupg`, Keychains, browser and password-manager data, Mail, Messages, `.env` files and similar. File reads of those are blocked twice, by Claude Code's own deny rules and by Zolt's approval hook. The hook also refuses any shell command that names them. A command that hides the path would still reach the Allow dialog, so read it before you click.
 - 🧱 Zolt treats text from web pages, files and screenshots as information, not instructions.
 - 📝 Zolt **never** starts meeting notes by itself, and it reminds you to tell people they're being transcribed. Check your workplace's rules before using it at work.
 - 💡 Suggested answers stay in the Live notes window. They're never spoken or posted. That window is a normal window, though, so **share a single window, not your whole screen**.
