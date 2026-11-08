@@ -10,10 +10,10 @@ Zolt and Zamil are AI agents that can act on your Mac. This page says exactly wh
 
 | Without asking | Only after you click Allow | Never |
 |---|---|---|
-| Listen, after you click it or press its hotkey | Run a command (reminders, volume, opening apps…) | Read secret locations (see below) |
+| Listen, after you click it or press its hotkey | Run a command (reminders, volume, opening apps…) | Read secret locations with its file tools, or run a command that names one (see below) |
 | Read files in your home folder to answer you | Create, overwrite or change a file | Start meeting notes by itself |
 | Take a screenshot, when you ask it to look | Open a web page or search the web | Speak into a call |
-| Take meeting notes, after you agree to it | Use any other tool Claude Code offers | Act on instructions found in web pages, files or screenshots |
+| Take meeting notes, after you agree to it | Use any other tool Claude Code offers | Act on instructions found in web pages, files or screenshots without your Allow |
 
 ## What stops it
 
@@ -26,6 +26,7 @@ Zolt and Zamil are AI agents that can act on your Mac. This page says exactly wh
 **2. Secret locations are blocked twice.** Reads of `.ssh`, `.aws`, `.gnupg`, `.kube`, `.docker`, `.azure`, gcloud and GitHub CLI config, `.netrc`, `.npmrc`, `.pypirc`, `.git-credentials`, `.claude`, Keychains, Cookies, Mail, Messages, Safari, Chrome and Firefox profiles, 1Password data and any `.env` file are refused:
 - by **Claude Code's own deny rules**, which Zolt writes into its settings on every launch, and
 - by **Zolt's approval check**, which refuses them even if the deny rules were missing.
+- Shell commands that name one of these locations are refused by the approval check too.
 - Code: `secretFolders` and `isSecretPath` in [`Sources/main.swift`](Sources/main.swift).
 
 **3. Meeting text can't trigger tools.** Other people's words reach Claude when Zolt writes a summary or suggests an answer. Those two requests run with **every tool turned off**, built-in and MCP alike (`--tools ""` and `--strict-mcp-config`), so nothing said on a call can make Zolt read, run or send anything.
@@ -56,6 +57,7 @@ Being honest about these is part of the design:
 
 - **You are the last line of defence.** If you allow a harmful command, it runs. Read the dialog. If approvals start to feel automatic, that's a signal to slow down.
 - **Reading is broad.** Outside the blocked list, Zolt can read your home folder without asking. Don't keep secrets in unusual places.
+- **The shell check looks for names.** A command that disguises a secret path (a wildcard or a variable, say) isn't refused automatically. It still stops at the Allow dialog, so read the full command.
 - **Prompt injection is reduced, not solved.** A web page or file could try to steer Claude. It still can't act without your Allow or read blocked secrets, but it could produce a misleading answer.
 - **The Live notes window is a normal window.** If you share your whole screen, others can see suggested answers. Share a single window instead.
 - **Builds aren't notarized yet.** macOS asks you to click "Open Anyway" once. Building from source avoids this.

@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.2 · 2026-11-08
+
+- Shell commands that name a secret location (`.ssh`, `.aws`, Keychains, `.env` files and the rest) are now refused outright instead of going to the Allow dialog
+- `.env.*` files are also recognised when named without a folder
+- Docs say exactly what the secret block covers, and that Claude Code needs a paid Claude account
+
 ## 0.3.1 · 2026-11-02
 
 - When Zolt and Zamil both run, only one of them offers to take notes for a meeting

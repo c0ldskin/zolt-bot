@@ -101,7 +101,7 @@
   <section id="install">
     <h2>Install in 3 steps</h2>
     <ol class="steps">
-      <li><strong>Give it a brain.</strong> Install Claude Code, then run <code>claude</code> once to sign in:
+      <li><strong>Give it a brain.</strong> Install Claude Code, then run <code>claude</code> once to sign in. You'll need a paid Claude account, as the free plan doesn't include Claude Code:
         <pre><code>curl -fsSL https://claude.ai/install.sh | bash</code></pre></li>
       <li><strong>Download</strong> Zolt (or Zamil) from the <a href="https://github.com/c0ldskin/zolt-bot/releases/latest">latest release</a>, unzip it, and drag it into Applications.</li>
       <li><strong>First launch:</strong> macOS blocks unsigned apps once. Open System Settings → Privacy &amp; Security → <strong>Open Anyway</strong>. Then click Zolt and say hi.</li>
@@ -114,7 +114,7 @@
     <ul class="safe">
       <li>🎙️ The mic is on only while Zolt is listening (you clicked it) or taking notes (you said yes).</li>
       <li>✋ Every action and web search shows an Allow / Deny dialog with the full command. Deny is the default.</li>
-      <li>🔐 Never reads secrets: SSH keys, Keychains, browser data, password managers, <code>.env</code> files.</li>
+      <li>🔐 Secrets stay locked: Zolt refuses to read SSH keys, Keychains, browser data, password managers and <code>.env</code> files, and refuses commands that name them.</li>
       <li>📝 Never starts meeting notes by itself, and reminds you to tell people they're being transcribed.</li>
     </ul>
   </section>

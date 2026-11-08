@@ -547,7 +547,7 @@ final class Brain {
     static func isSecretPath(_ value: String) -> Bool {
         let home = NSHomeDirectory()
         let v = value.replacingOccurrences(of: "~", with: home).lowercased()
-        if v.hasSuffix("/.env") || v.contains("/.env.") || v == ".env" { return true }
+        if v.hasSuffix("/.env") || v.contains("/.env.") || v == ".env" || v.hasPrefix(".env.") { return true }
         return secretFolders.contains { folder in
             let f = folder.lowercased()
             return v.contains("\(home.lowercased())/\(f)") || v.hasPrefix(f) || v.contains("/\(f)/") || v.hasSuffix("/\(f)")
@@ -1285,8 +1285,14 @@ func runConfirm() -> Never {
     let detail: String
     switch tool {
     case "Bash":
+        let command = params["command"] as? String ?? ""
+        // A shell command can reach the same files, so refuse any that names a secret location.
+        let words = command.split(whereSeparator: { " \t\n;|&<>()=\"'`".contains($0) }).map(String.init)
+        if Brain.isSecretPath(command) || words.contains(where: Brain.isSecretPath) {
+            decide(false, "That location may hold passwords or keys, so \(robot.name) never reads it.")
+        }
         summary = (params["description"] as? String) ?? robot.t("Run a command", "تشغيل أمر")
-        detail = params["command"] as? String ?? ""
+        detail = command
     case "Write":
         summary = robot.t("Create or overwrite a file", "إنشاء ملف أو استبداله")
         detail = params["file_path"] as? String ?? ""
