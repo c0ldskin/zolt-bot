@@ -9,6 +9,12 @@
 - The client is cleared when the notes are written, so a call never lands in the wrong client's memory by accident
 - The memory update runs with every tool turned off, like summaries and suggested answers
 
+**Ready-made tasks**
+- A new menu of things worth asking for: summarise a document, draft a reply to what's on screen, show me how to do something in this app, explain what's on screen, turn the last meeting notes into a follow-up email, plan my day
+- Every result ends with "Next time, just say: …", so you learn to ask for it yourself
+- Drafts are copied to the clipboard, ready to paste; long results aren't read aloud
+- Same rules as any request: one screenshot only for tasks that say so, and anything that acts on your Mac still asks first
+
 **Prepare for a call**
 - Add PDFs, PowerPoints (with speaker notes), Word files, text files, folders or web pages from the menu before a call
 - Suggested answers use the passages that match each question and name their source

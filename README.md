@@ -94,6 +94,7 @@
 | 💡 **Suggested answers** | Optional: when someone on the call asks a question, a suggested answer quietly appears in your notes window. It never speaks into the call. |
 | 📚 **Prepare for a call** | Feed it PDFs, PowerPoints, Word files, text or web pages before the call, and suggested answers come from them, with the source named. |
 | 🗂️ **Remembers your clients** | Tell it who the call is with. Notes are filed per client, and a short memory of people, concerns, commitments and next steps is kept up to date and used in the next call. |
+| 🧰 **Ready-made tasks** | New to AI? Pick from a menu: summarise a document, draft a reply to what's on screen, show me how to do something in this app, turn meeting notes into a follow-up email, plan my day. Each one ends by teaching you how to ask for it yourself. |
 | 🌙 **Has a life** | Pops in with ideas every 45 min, naps when you're away, wobbles when you drag it. |
 
 ## 🚀 Quick start
