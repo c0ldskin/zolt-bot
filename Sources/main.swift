@@ -1675,6 +1675,8 @@ if let i = CommandLine.arguments.firstIndex(of: "--client-check"), i + 2 < Comma
     print("known: \(clients.names)")
     print(clients.passage(for: name))
     try? FileManager.default.removeItem(at: temp)
+    exit(0)
+}
 // Test mode: prints the ready-made tasks and checks how a finished reply is split. Doesn't call Claude.
 if CommandLine.arguments.contains("--task-check") {
     for task in ReadyTask.all { print("task: \(task.title)") }
