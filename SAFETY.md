@@ -46,11 +46,12 @@ Zolt and Zamil are AI agents that can act on your Mac. This page says exactly wh
 | What you say or type, screenshots you ask about, files Zolt reads to answer you | Anthropic, through **your own** Claude Code login | So Claude can answer |
 | Meeting transcripts | Anthropic, through your Claude Code login | For summaries and suggested answers |
 | Passages from your call briefing that match a question | Anthropic, through your Claude Code login | For suggested answers |
+| What's remembered about a client, and the notes of the call just finished | Anthropic, through your Claude Code login | To update that client's memory and for suggested answers |
 | Meeting **audio** | Nowhere: it's transcribed on your Mac | |
 
 **Stored on your Mac only:**
 - `~/.zolt` or `~/.zamil`: conversation id, settings, the last screenshot, the text of your call briefing, and a small log of what Zolt did (never what anyone said, capped at 512 KB)
-- `~/Zolt Meeting Notes` or `~/Zamil Meeting Notes`: your notes, as Markdown
+- `~/Zolt Meeting Notes` or `~/Zamil Meeting Notes`: your notes, as Markdown. Inside it, `Clients/<name>/` holds the notes of calls you assigned to a client and a `memory.md` you can read, edit or delete
 
 ## Known limits
 
@@ -61,6 +62,7 @@ Being honest about these is part of the design:
 - **The shell check looks for names.** A command that disguises a secret path (a wildcard or a variable, say) isn't refused automatically. It still stops at the Allow dialog, so read the full command.
 - **Prompt injection is reduced, not solved.** A web page or file could try to steer Claude. It still can't act without your Allow or read blocked secrets, but it could produce a misleading answer. That includes anything you add to a call briefing, so only add sources you trust.
 - **Suggested answers can be wrong.** A briefing is searched by matching words, so a question phrased very differently can miss the right passage. Check before you repeat a figure.
+- **Client memory can be wrong, and it holds other people's words.** It's built from summaries of speech-to-text, so a misheard name or number can be carried into the next call. Read `memory.md` now and then and fix it. It's used as reference text only, in requests with no tools, so nothing in it can make Zolt act.
 - **The Live notes window is a normal window.** If you share your whole screen, others can see suggested answers. Share a single window instead.
 - **Builds aren't notarized yet.** macOS asks you to click "Open Anyway" once. Building from source avoids this.
 - **Permissions reset on every local rebuild,** because each ad-hoc signature is new. That's macOS protecting you, not a bug.

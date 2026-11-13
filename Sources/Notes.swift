@@ -267,6 +267,8 @@ final class NoteTaker: @unchecked Sendable {
     private(set) var active = false
     private(set) var startedAt = Date()
     private(set) var file: URL?
+    /// The summary of the last finished call; nil while recording, or if it couldn't be written.
+    private(set) var summary: String?
 
     private let micEngine = AVAudioEngine()
     private let system = SystemAudioCapture()
@@ -293,6 +295,7 @@ final class NoteTaker: @unchecked Sendable {
         guard !active else { return }
         active = true
         lines = []
+        summary = nil
         warnedSilence = false
         startedAt = Date()
         lastSound = Date()
@@ -420,6 +423,16 @@ final class NoteTaker: @unchecked Sendable {
         system.stop()
     }
 
+    /// Moves the finished notes into another folder (a client's), keeping the file name.
+    func refile(into folder: URL) {
+        guard !active, let file, file.deletingLastPathComponent().standardizedFileURL != folder.standardizedFileURL else { return }
+        let fm = FileManager.default
+        try? fm.createDirectory(at: folder, withIntermediateDirectories: true)
+        let target = folder.appendingPathComponent(file.lastPathComponent)
+        guard !fm.fileExists(atPath: target.path), (try? fm.moveItem(at: file, to: target)) != nil else { return }
+        self.file = target
+    }
+
     /// Stops recording, waits for the last words, and writes the summary. `done` gets a short
     /// message for the bubble.
     func stop(brain: Brain, done: @escaping (String) -> Void) {
@@ -443,6 +456,7 @@ final class NoteTaker: @unchecked Sendable {
             brain.summarize(transcript) { [weak self] summary in
                 guard let self else { return }
                 if let summary {
+                    self.summary = summary
                     self.writeFile(summary: summary)
                     let tldr = summary.components(separatedBy: "\n").first { $0.hasPrefix("TL;DR") } ?? ""
                     done(robot.t("Notes saved! \(tldr) Click here to open them.", "حفظت الملاحظات! \(tldr) اضغط هنا لفتحها."))
