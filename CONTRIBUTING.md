@@ -20,6 +20,7 @@ Everything is plain Swift compiled with `swiftc`, so there's no Xcode project. T
 | `main.swift` | Animations, speech bubble, voice input, Claude bridge, menu, app |
 | `Notes.swift` | Meeting detection, Core Audio process tap, the note taker |
 | `Clients.swift` | Per-client folders and the `memory.md` kept between calls |
+| `Tasks.swift` | The ready-made tasks in the menu, and their prompts |
 | `Transcriber.swift` | Live transcription with macOS 26 `SpeechAnalyzer` |
 | `LiveNotes.swift` | The growing live transcript window |
 | `Screen.swift` | One-off screenshots with ScreenCaptureKit |
@@ -29,6 +30,7 @@ Everything is plain Swift compiled with `swiftc`, so there's no Xcode project. T
 
 - A new mood or animation: add it to `SpriteView.draw`, then add a tile in `Art.swift`.
 - A new character: add a `Robot` in `Robot.swift` (copy Zamil as a template) and a case in `build.sh`.
+- A new ready-made task: add a `ReadyTask` to the list in `Tasks.swift`.
 - The dance animation on the roadmap.
 
 ## Releasing

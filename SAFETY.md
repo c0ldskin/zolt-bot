@@ -63,6 +63,7 @@ Being honest about these is part of the design:
 - **Prompt injection is reduced, not solved.** A web page or file could try to steer Claude. It still can't act without your Allow or read blocked secrets, but it could produce a misleading answer. That includes anything you add to a call briefing, so only add sources you trust.
 - **Suggested answers can be wrong.** A briefing is searched by matching words, so a question phrased very differently can miss the right passage. Check before you repeat a figure.
 - **Client memory can be wrong, and it holds other people's words.** It's built from summaries of speech-to-text, so a misheard name or number can be carried into the next call. Read `memory.md` now and then and fix it. It's used as reference text only, in requests with no tools, so nothing in it can make Zolt act.
+- **Ready-made tasks are ordinary requests.** A task that mentions your screen takes one screenshot when you pick it, and "Plan my day" asks before it reads your Calendar or Reminders. Drafts are copied to your clipboard and never sent anywhere by Zolt.
 - **The Live notes window is a normal window.** If you share your whole screen, others can see suggested answers. Share a single window instead.
 - **Builds aren't notarized yet.** macOS asks you to click "Open Anyway" once. Building from source avoids this.
 - **Permissions reset on every local rebuild,** because each ad-hoc signature is new. That's macOS protecting you, not a bug.

@@ -36,6 +36,15 @@ jobs:
           echo "$out" | grep -q "^same client again: true$"
           echo "$out" | grep -q "^\[Past calls with Acme - Gulf- north\]$"
           echo "$out" | grep -q "zanzibar pricing"
+      - name: Check ready-made tasks
+        run: |
+          EXE=$(ls -d build/*.app/Contents/MacOS/* | head -1)
+          out=$("$EXE" --task-check); echo "$out"
+          test "$(echo "$out" | grep -c "^task: ")" -ge 6
+          echo "$out" | grep -q "^fills the input: true$"
+          echo "$out" | grep -q "^asks for the tip: true$"
+          echo "$out" | grep -q "^draft: Dear Sam, | Thanks for today.$"
+          echo "$out" | grep -q "^unfinished reply copies nothing: true$"
       - name: Check the call briefing
         run: |
           EXE=$(ls -d build/*.app/Contents/MacOS/* | head -1)

@@ -964,6 +964,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate, AVSpeechSynthesizerDel
         menu.addItem(item(robot.t("Type to \(robot.name)…", "اكتب لـ\(robot.name)…"), #selector(typeClicked)))
         menu.addItem(item(robot.t("Look at my screen…", "انظر إلى شاشتي…"), #selector(lookClicked)))
         menu.addItem(item(robot.t("Give me an idea", "أعطني فكرة"), #selector(ideaClicked)))
+        let taskMenu = NSMenu()
+        for (index, task) in ReadyTask.all.enumerated() {
+            let entry = item(task.title, #selector(runTask(_:)))
+            entry.tag = index
+            taskMenu.addItem(entry)
+        }
+        let taskItem = NSMenuItem(title: robot.t("Ready-made tasks", "مهام جاهزة"), action: nil, keyEquivalent: "")
+        taskItem.submenu = taskMenu
+        menu.addItem(taskItem)
         menu.addItem(.separator())
         menu.addItem(item(notes.active ? robot.t("Stop taking notes", "أوقف التدوين") : robot.t("Start taking notes", "ابدأ التدوين"), #selector(toggleNotes)))
         menu.addItem(item(robot.t("Show live notes", "اعرض الملاحظات المباشرة"), #selector(showLiveNotes)))
@@ -1066,30 +1075,40 @@ final class AppDelegate: NSObject, NSApplicationDelegate, AVSpeechSynthesizerDel
 
     /// Sends a request to Claude. If it's about the screen (or `lookAtScreen` is true), a screenshot
     /// is taken first and handed over with it.
-    func send(_ text: String, quote: Bool = true, aloud: Bool = true, idea: Bool = false, lookAtScreen: Bool? = nil) {
+    /// `showing` is what the bubble quotes instead of `text` (for ready-made tasks, whose requests are
+    /// long). With `copyDraft`, a finished task's result is put on the clipboard.
+    func send(_ text: String, quote: Bool = true, aloud: Bool = true, idea: Bool = false, lookAtScreen: Bool? = nil,
+              showing: String? = nil, copyDraft: Bool = false) {
         noteActivity()
         busy = true
         sprite.mood = .thinking
+        let shown = showing ?? text
         let ask: (String) -> Void = { [weak self] prompt in
             self?.brain.ask(prompt) { [weak self] reply in
                 guard let self else { return }
                 self.busy = false
                 self.noteActivity()
                 if idea { self.sprite.showIdea() } else { self.sprite.hop() }
+                var reply = reply
+                if copyDraft, let draft = ReadyTask.draft(in: reply) {
+                    NSPasteboard.general.clearContents()
+                    NSPasteboard.general.setString(draft, forType: .string)
+                    reply += robot.t("\n\n(Copied, ready to paste.)", "\n\n(تم النسخ، جاهز للصق.)")
+                }
                 self.say(reply, speak: aloud && self.speakReplies)
             }
         }
         guard lookAtScreen ?? Screen.wantsLook(text) else {
-            say(quote ? robot.t("“\(text)”\n\nThinking…", "«\(text)»\n\nأفكّر…") : robot.t("Thinking…", "أفكّر…"), speak: false, sticky: true)
+            say(quote ? robot.t("“\(shown)”\n\nThinking…", "«\(shown)»\n\nأفكّر…") : robot.t("Thinking…", "أفكّر…"), speak: false, sticky: true)
             ask(text)
             return
         }
-        say(robot.t("“\(text)”\n\nTaking a look at your screen…", "«\(text)»\n\nأنظر إلى شاشتك…"), speak: false, sticky: true)
+        say(robot.t("“\(shown)”\n\nTaking a look at your screen…", "«\(shown)»\n\nأنظر إلى شاشتك…"), speak: false, sticky: true)
         Screen.capture { [weak self] result in
             guard let self else { return }
             switch result {
             case .success(let file):
-                self.say(robot.t("“\(text)”\n\nLooking… thinking…", "«\(text)»\n\nأنظر… وأفكّر…"), speak: false, sticky: true)
+                self.say(robot.t("“\(shown)”\n\nLooking… thinking…", "«\(shown)»\n\nأنظر… وأفكّر…"), speak: false, sticky: true)
                 ask("\(text)\n\n[\(robot.name) just took a screenshot of the user's screen (\(robot.name)'s own windows hidden). Read it at \(file.path) to see what they're looking at.]")
             case .failure(let error):
                 self.busy = false
@@ -1420,6 +1439,46 @@ final class AppDelegate: NSObject, NSApplicationDelegate, AVSpeechSynthesizerDel
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) { self.send(text, lookAtScreen: true) }
     }
 
+    /// Runs a ready-made task, first collecting whatever it needs. Long results aren't read aloud.
+    @objc func runTask(_ sender: NSMenuItem) {
+        guard !busy, ReadyTask.all.indices.contains(sender.tag) else { return }
+        guard !notes.active else {
+            say(robot.t("I'm taking notes right now. Ask me again after the call.", "أنا أدوّن الملاحظات الآن. اطلب مني ذلك بعد المكالمة."), speak: false)
+            return
+        }
+        let task = ReadyTask.all[sender.tag]
+        let label = task.title.replacingOccurrences(of: "…", with: "")
+        func start(_ input: String = "", look: Bool = false) {
+            send(task.request(input: input), aloud: false, lookAtScreen: look, showing: label, copyDraft: task.copies)
+        }
+        switch task.needs {
+        case .nothing:
+            start()
+        case .screen:
+            start(look: true)
+        case .goal:
+            guard let goal = askText(robot.t("What are you trying to do?", "ماذا تحاول أن تفعل؟"),
+                                     placeholder: robot.t("Add a chart to this spreadsheet", "أضف مخططاً إلى هذا الجدول"), button: robot.t("Show me", "أرني")) else { return }
+            // Let the dialog close before the screenshot.
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) { start(goal, look: true) }
+        case .file:
+            noteActivity()
+            NSApp.activate(ignoringOtherApps: true)
+            let panel = NSOpenPanel()
+            panel.message = robot.t("Choose a document for \(robot.name) to read", "اختر مستنداً ليقرأه \(robot.name)")
+            panel.allowsMultipleSelection = false
+            panel.canChooseDirectories = false
+            guard panel.runModal() == .OK, let file = panel.url else { return }
+            start(file.path)
+        case .lastNotes:
+            guard let file = ReadyTask.latestNotes(in: NoteTaker.folder) else {
+                say(robot.t("I don't have any meeting notes yet. Take notes on a call first.", "ليست لديّ ملاحظات اجتماعات بعد. دوّن ملاحظات مكالمة أولاً."), speak: false)
+                return
+            }
+            start(file.path)
+        }
+    }
+
     @objc func toggleSpeak() { speakReplies.toggle(); if !speakReplies { voice.stopSpeaking(at: .immediate) }; refreshMenus() }
     @objc func pickVoice(_ sender: NSMenuItem) {
         voiceName = sender.title
@@ -1616,6 +1675,17 @@ if let i = CommandLine.arguments.firstIndex(of: "--client-check"), i + 2 < Comma
     print("known: \(clients.names)")
     print(clients.passage(for: name))
     try? FileManager.default.removeItem(at: temp)
+    exit(0)
+}
+// Test mode: prints the ready-made tasks and checks how a finished reply is split. Doesn't call Claude.
+if CommandLine.arguments.contains("--task-check") {
+    for task in ReadyTask.all { print("task: \(task.title)") }
+    let request = ReadyTask.all[0].request(input: "/tmp/sample.pdf")
+    print("fills the input: \(request.contains("/tmp/sample.pdf") && !request.contains("{input}"))")
+    print("asks for the tip: \(request.contains(ReadyTask.tipMarker))")
+    let draft = ReadyTask.draft(in: "Dear Sam,\nThanks for today.\n\n\(ReadyTask.tipMarker) draft a reply to this")
+    print("draft: \(draft?.replacingOccurrences(of: "\n", with: " | ") ?? "(none)")")
+    print("unfinished reply copies nothing: \(ReadyTask.draft(in: "I can't find my brain!") == nil)")
     exit(0)
 }
 // Test mode: prints whether a line looks like a question and the answer Zolt would suggest.
