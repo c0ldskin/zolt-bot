@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+**Remembers your clients**
+- Pick a client for a call (menu → *Client for this call*, or in the "Take notes?" offer) and the notes are filed in that client's folder
+- After the call, a short `memory.md` for that client is rewritten: people, what they want, concerns, commitments, next steps and open questions
+- On the next call with them, suggested answers can draw on that memory, labelled "Past calls with …"
+- The client is cleared when the notes are written, so a call never lands in the wrong client's memory by accident
+- The memory update runs with every tool turned off, like summaries and suggested answers
+
 **Prepare for a call**
 - Add PDFs, PowerPoints (with speaker notes), Word files, text files, folders or web pages from the menu before a call
 - Suggested answers use the passages that match each question and name their source

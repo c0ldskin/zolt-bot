@@ -19,6 +19,7 @@ Everything is plain Swift compiled with `swiftc`, so there's no Xcode project. T
 | `Robot.swift` | The characters (Zolt and Zamil): sprite grid, colors, language, hotkey, folder |
 | `main.swift` | Animations, speech bubble, voice input, Claude bridge, menu, app |
 | `Notes.swift` | Meeting detection, Core Audio process tap, the note taker |
+| `Clients.swift` | Per-client folders and the `memory.md` kept between calls |
 | `Transcriber.swift` | Live transcription with macOS 26 `SpeechAnalyzer` |
 | `LiveNotes.swift` | The growing live transcript window |
 | `Screen.swift` | One-off screenshots with ScreenCaptureKit |

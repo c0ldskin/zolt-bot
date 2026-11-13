@@ -25,6 +25,17 @@ jobs:
           test -f "$NAME/Contents/Resources/$EXE.icns"
           test "$(/usr/libexec/PlistBuddy -c "Print RobotCharacter" "$NAME/Contents/Info.plist")" = "${{ matrix.character }}"
           plutil -lint "$NAME/Contents/Info.plist"
+      - name: Check client memory
+        run: |
+          EXE=$(ls -d build/*.app/Contents/MacOS/* | head -1)
+          out=$("$EXE" --client-check "Acme / Gulf: north" "## Next steps
+          - Send the zanzibar pricing by Friday"); echo "$out"
+          echo "$out" | grep -q "^client: Acme - Gulf- north$"
+          echo "$out" | grep -q "^empty before the first call: true$"
+          echo "$out" | grep -q "^saved: true$"
+          echo "$out" | grep -q "^same client again: true$"
+          echo "$out" | grep -q "^\[Past calls with Acme - Gulf- north\]$"
+          echo "$out" | grep -q "zanzibar pricing"
       - name: Check the call briefing
         run: |
           EXE=$(ls -d build/*.app/Contents/MacOS/* | head -1)
